@@ -6,11 +6,11 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return traffic('work')
+    return tomtom.traffic('work')
 
 @app.route('/home')
 def hello():
-    return traffic('home')
+    return tomtom.traffic('home')
 
 if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000.
