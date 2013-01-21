@@ -3,5 +3,3 @@ include/
 lib/
 share/
 src/
-venv
-*.pyc
