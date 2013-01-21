@@ -1,0 +1,4 @@
+gunicorn==0.17.2
+simplejson==3.0.7
+tornado==2.4.1
+wsgiref==0.1.2
