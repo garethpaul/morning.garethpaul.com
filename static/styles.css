@@ -1,0 +1,29 @@
+body{
+	margin:0px;
+	padding:0px;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.container{
+	width:700px;
+	margin:0 auto;
+}
+.header{
+	width:100%;
+	background:black;
+	margin:0px;
+	padding:0px;
+	min-height:50px;
+}
+.header h1{
+	margin:0px;
+	padding-left:20px;
+	padding-top:10px;
+	color:white;
+	font-size:18px;
+}
+.mini{
+	font-size:10px;
+	margin:0px;
+	padding:0px;
+	color:#727272;
+}
