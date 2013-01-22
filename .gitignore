@@ -5,3 +5,6 @@ share/
 src/
 venv
 *.pyc
+.gitignore
+*~
+settings.py
