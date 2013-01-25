@@ -12,6 +12,21 @@
 	<h2>Travel</h2>
 	<p>Travel time delay = {{ data }} </p>
 	<p class='mini'>This is based on TomTom route planner data.</p>
+	<button class='bus'>Bus</button>
+	<button class='car'>Car</button>
+	<div><p class='info'></p></div>
+	<script type='text/javascript'>
+	$('.bus').click(function(){
+		$('.info').empty();
+		morning_html = '<p>You saved ${{ transport }} today</p>';
+		$('.info').html(morning_html);
+		
+	})
+	$('.car').click(function(){
+		$('.info').empty();
+		$('.info').html('You lost ${{ transport }} today.');
+	})
+	</script>
 	</div>
 </body>
 </html>
