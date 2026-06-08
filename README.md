@@ -1,3 +1,8 @@
+# morning.garethpaul.com
+
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 morning.garethpaul.com
 ======================
 
@@ -16,4 +21,3 @@ json
 access to routes.tomtom.com
 
 Run by python app.py
-
