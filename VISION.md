@@ -39,7 +39,6 @@ Canonical security policy and reporting:
 
 - [`SECURITY.md`](SECURITY.md)
 
-
 Home and work coordinates are sensitive. They must stay out of git, and logs
 should avoid recording precise routes or commute patterns.
 
