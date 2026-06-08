@@ -1,5 +1,8 @@
 # morning.garethpaul.com
 
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 ## Overview
 
 `garethpaul/morning.garethpaul.com` is a static web project. Checks commute time etc via checking traffic etc.
@@ -71,4 +74,3 @@ Keep changes small and tied to the project that is already present in this repos
 Prior README summary:
 
 > morning.garethpaul.com <!-- README-OVERVIEW-IMAGE --> morning.garethpaul.com ====================== Checks commute time etc via checking traffic etc. Get Started: Add your geo lat/lng posiion in the settings file. Requirements:
-
