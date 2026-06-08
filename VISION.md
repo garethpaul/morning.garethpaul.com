@@ -44,3 +44,6 @@ should avoid recording precise routes or commute patterns.
 - Debug-mode production deployment
 - Live-only tests as the default quality gate
 - Broad rewrites without preserving the simple dashboard behavior
+
+This list is a roadmap guardrail, not a permanent rule.
+Strong user demand and strong technical rationale can change it.
