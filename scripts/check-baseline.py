@@ -43,6 +43,10 @@ def main() -> int:
             if pattern.search(text):
                 failures.append(f"forbidden legacy pattern {pattern.pattern} found in {path.relative_to(ROOT)}")
 
+    settings_example = (ROOT / "settings.py.example").read_text(encoding="utf-8", errors="replace")
+    if re.search(r'(home_pos|work_pos)\s*=\s*"[0-9.-]+,[0-9.-]+"', settings_example):
+        failures.append("settings.py.example must use non-personal coordinate placeholders")
+
     template = (ROOT / "templates" / "index.html").read_text(encoding="utf-8", errors="replace")
     if "code.jquery.com" in template:
         failures.append("template must not depend on remote jQuery for simple click handlers")
