@@ -1,7 +1,7 @@
 """Copy to ignored settings.py for local development."""
 
-home_pos = "37.0000,-122.0000"
-work_pos = "37.5000,-122.5000"
+home_pos = "HOME_LATITUDE,HOME_LONGITUDE"
+work_pos = "WORK_LATITUDE,WORK_LONGITUDE"
 work_miles = "10"
 miles_per_gallon = "30"
 cost_per_gallon = "4.50"
