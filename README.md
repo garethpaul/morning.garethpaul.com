@@ -54,6 +54,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 ## Configuration and Secrets
 
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.
+- Debug mode is disabled by default. For local development only, set
+  `MORNING_DEBUG=1`.
 
 ## Security and Privacy Notes
 
