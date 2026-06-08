@@ -13,12 +13,18 @@ in [`README.md`](README.md).
 The goal is to keep the dashboard simple, credential-safe, and explicit about
 location configuration.
 
+Current baseline: `make check` compiles the Python files and runs
+`scripts/check-baseline.py` to verify placeholder-safe settings, TomTom HTTPS
+URLs, HTTPS template assets, and `FLASK_DEBUG` opt-in behavior.
+
 The current focus is:
 
 Priority:
 
 - Preserve commute-delay and fuel-cost display behavior
 - Keep home/work coordinates in local settings rather than public source
+- Keep placeholder settings importable without real commute values
+- Keep Flask debug mode opt-in through `FLASK_DEBUG`
 - Avoid committing API keys, location coordinates, or personal commute details
 - Maintain security policy and old Python/Flask context
 
@@ -33,6 +39,7 @@ Contribution rules:
 
 - One PR = one focused route, settings, UI, or documentation change.
 - Do not commit personal coordinates or route API credentials.
+- Run `make check` before pushing source or documentation changes.
 - Verify parsing with fixtures before live route calls.
 - Document external route-service changes.
 
@@ -43,7 +50,8 @@ Canonical security policy and reporting:
 - [`SECURITY.md`](SECURITY.md)
 
 Home and work coordinates are sensitive. They must stay out of git, and logs
-should avoid recording precise routes or commute patterns.
+should avoid recording precise routes or commute patterns. Hosted deployments
+should not enable Flask debug mode.
 
 ## What We Will Not Merge (For Now)
 

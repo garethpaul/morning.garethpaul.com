@@ -1,0 +1,10 @@
+"""Copy to ignored settings.py for local development."""
+
+home_pos = "37.0000,-122.0000"
+work_pos = "37.5000,-122.5000"
+work_miles = "10"
+miles_per_gallon = "30"
+cost_per_gallon = "4.50"
+tomtom_api_key = "YOUR_TOMTOM_API_KEY"
+news = ""
+debug = False
