@@ -7,33 +7,33 @@ Morning GarethPaul.com is a small Flask app that checks commute traffic and
 renders morning commute information, including estimated delay and fuel cost.
 
 The repository is useful as a personal commute dashboard sample using Flask,
-TomTom route data, local settings, and a simple web UI. Project setup notes live
-in [`README.md`](README.md).
+TomTom route data, environment-backed local settings, and a simple web UI.
+Project setup notes live in [`README.md`](README.md).
 
 The goal is to keep the dashboard simple, credential-safe, and explicit about
 location configuration.
 
-Current baseline: `make check` compiles the Python files and runs
-`scripts/check-baseline.py` to verify placeholder-safe settings, TomTom HTTPS
-URLs, HTTPS template assets, and `FLASK_DEBUG` opt-in behavior.
+Current baseline: `make check` runs offline unit tests, compiles the Python
+files, and runs `scripts/check-baseline.py` to verify placeholder-safe settings,
+TomTom HTTPS URLs, fixture-based route parsing, and `FLASK_DEBUG` opt-in
+behavior.
 
 The current focus is:
 
 Priority:
 
 - Preserve commute-delay and fuel-cost display behavior
-- Keep home/work coordinates in local settings rather than public source
+- Keep home/work coordinates in environment variables or ignored local settings
 - Keep placeholder settings importable without real commute values
 - Keep Flask debug mode opt-in through `FLASK_DEBUG`
 - Avoid committing API keys, location coordinates, or personal commute details
-- Maintain security policy and old Python/Flask context
+- Maintain security policy and Python/Flask context
 
 Next priorities:
 
-- Move coordinates and route-service configuration into ignored local config
-- Port to supported Python and maintained HTTP libraries
-- Add tests with fixture route responses
-- Disable debug mode for any hosted deployment notes
+- Add weather or news inputs behind the same fixture-first testing approach
+- Add CI once the repository owner wants verification on every push
+- Document deployment environment variables for any hosted deployment
 
 Contribution rules:
 

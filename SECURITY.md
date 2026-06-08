@@ -28,10 +28,9 @@ Helpful reports include:
 - Review found network clients, sockets, web APIs, or service endpoints; changes in those areas should receive security-focused review before merge.
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
-- Run `make check` after changing Python sources, TomTom route handling, local settings, templates, or security docs.
+- Dependency manifest detected: requirements.txt. Run `make check` after changing Python sources, TomTom route handling, local settings, templates, dependencies, or security docs.
 - Home/work coordinates, TomTom route-service data, API keys, `.env` files, logs, and local settings overlays should stay out of git.
 - Flask debug mode should remain opt-in through `FLASK_DEBUG=1` for local development only.
-- No primary dependency manifest was detected in the repository root. If dependencies are added later, include a manifest and prefer reproducible installation instructions.
 
 ## Service and API Notes
 
@@ -41,7 +40,7 @@ For this commute dashboard, reports should also state whether home/work coordina
 
 ## Dependency and Supply Chain Security
 
-Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
+Dependency updates should come from trusted package managers and should keep manifests in sync when they exist. Do not commit credentials, private keys, tokens, generated secrets, route API keys, home/work coordinates, personal commute details, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
 
 ## Safe Research Guidelines
 

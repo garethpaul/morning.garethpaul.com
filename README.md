@@ -5,7 +5,7 @@
 
 ## Overview
 
-`garethpaul/morning.garethpaul.com` is a static web project. Checks commute time etc via checking traffic etc.
+`garethpaul/morning.garethpaul.com` is a small Flask commute dashboard. It checks TomTom route delay data, renders a morning travel page, and estimates daily commute fuel cost.
 
 This README is based on the checked-in source, manifests, scripts, and repository metadata on the `master` branch. The project language mix found during review was: Python (5).
 
@@ -15,34 +15,37 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 - `.gitignore` - local settings and Python artifact ignores
 - `CHANGES.md` - recent maintenance changes
 - `Makefile` - local static verification entry point
-- `app.py`
+- `app.py` - Flask app factory and runtime settings loader
+- `requirements.txt` - Flask and requests dependency metadata
 - `SECURITY.md` - security reporting and disclosure guidance
 - `scripts/check-baseline.py` - static commute dashboard baseline checks
 - `static` - source or example code
 - `stuff` - source or example code
 - `templates` - source or example code
+- `tests` - offline unit tests for config, routes, and TomTom parsing
 - `VISION.md` - project direction and maintenance guardrails
 
 Additional scan context:
 
 - Source directories: static, stuff, templates
-- Dependency and build manifests: none detected
-- Entry points or build surfaces: app.py
-- Test-looking files: no obvious test files detected
+- Dependency and build manifests: requirements.txt
+- Entry points or build surfaces: `make check`, app.py
+- Test-looking files: tests/test_app.py, tests/test_tomtom.py
 
 ## Getting Started
 
 ### Prerequisites
 
 - Git
-- Python 3 for `make check`
-- Flask for live local runs
+- Python 3.10 or newer
+- Flask and requests from `requirements.txt`
 
 ### Setup
 
 ```bash
 git clone https://github.com/garethpaul/morning.garethpaul.com.git
 cd morning.garethpaul.com
+python3 -m pip install -r requirements.txt
 make check
 cp settings.py.example settings.py
 ```
@@ -51,14 +54,15 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Running or Using the Project
 
-- Copy `settings.py.example` to `settings.py` and fill in local values before making live TomTom requests.
-- Run `python app.py` after installing Python dependencies.
+- Copy `settings.py.example` to `settings.py` or set the documented environment variables before making live TomTom requests.
+- Run `python app.py` for local development.
+- For Flask CLI usage, set `FLASK_APP=app:create_app`.
 - Set `FLASK_DEBUG=1` only for local debugging.
 
 ## Testing and Verification
 
-- `make check` compiles the Python files and runs `scripts/check-baseline.py`.
-- `scripts/check-baseline.py` verifies placeholder-safe settings behavior, debug opt-in, HTTPS route/template URLs, and documentation guardrails.
+- `make check` runs offline unit tests, compiles Python files, and runs `scripts/check-baseline.py`.
+- `python3 -m unittest discover -s tests` verifies configuration, Flask routes, TomTom URL construction, response parsing, and injected HTTP behavior without live TomTom calls.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -66,16 +70,19 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - Home/work coordinates, route API keys, personal commute details, `.env` files, and local settings overlays should stay out of git.
 - `settings.py.example` in this repository is a placeholder template; real values belong in local-only `settings.py` or another ignored local configuration file.
+- Prefer environment variables: `MORNING_HOME_POS`, `MORNING_WORK_POS`, `MORNING_WORK_MILES`, `MORNING_MILES_PER_GALLON`, `MORNING_COST_PER_GALLON`, and `TOMTOM_API_KEY`.
 
 ## Security and Privacy Notes
 
 - Review changes touching network requests, sockets, or service endpoints; examples from the scan include app.py, stuff/tomtom.py, templates/index.html.
 - Keep TomTom requests on HTTPS and do not enable Flask debug mode in hosted deployments.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include stuff/tomtom.py.
+- Tests should use fixture responses and injected HTTP clients instead of live route calls.
 
 ## Maintenance Notes
 
-- Run `make check` before pushing Python, settings, template, or security documentation changes.
+- Run `make check` before pushing Python, TomTom, settings, template, dependency, or security documentation changes.
+- See `docs/plans/2026-06-08-morning-dashboard-baseline.md` for the current completed baseline plan.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 
