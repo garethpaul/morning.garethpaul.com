@@ -38,7 +38,7 @@ Contribution rules:
 Home and work coordinates are sensitive. They must stay out of git, and logs
 should avoid recording precise routes or commute patterns.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Personal coordinates or route API keys
 - Debug-mode production deployment
