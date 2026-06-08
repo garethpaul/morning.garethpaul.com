@@ -73,4 +73,4 @@ Keep changes small and tied to the project that is already present in this repos
 
 Prior README summary:
 
-> morning.garethpaul.com <!-- README-OVERVIEW-IMAGE --> morning.garethpaul.com ====================== Checks commute time etc via checking traffic etc. Get Started: Add your geo lat/lng posiion in the settings file. Requirements:
+> morning.garethpaul.com morning.garethpaul.com ====================== Checks commute time etc via checking traffic etc. Get Started: Add your geo lat/lng posiion in the settings file. Requirements:
