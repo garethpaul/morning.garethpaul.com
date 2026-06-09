@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-09
+
+- Added sanitized numeric setting errors so invalid commute configuration fails
+  without echoing raw local values.
+
 ## 2026-06-08
 
 - Added `make check` with Python compilation and static baseline checks.

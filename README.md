@@ -72,6 +72,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - `settings.py.example` in this repository is a placeholder template; real values belong in local-only `settings.py` or another ignored local configuration file.
 - Prefer environment variables: `MORNING_HOME_POS`, `MORNING_WORK_POS`, `MORNING_WORK_MILES`, `MORNING_MILES_PER_GALLON`, `MORNING_COST_PER_GALLON`, and `TOMTOM_API_KEY`.
 - Positive numeric commute settings are required for work miles, miles per gallon, and cost per gallon.
+- Sanitized numeric setting errors name the invalid field without echoing raw
+  local configuration values.
 
 ## Security and Privacy Notes
 
@@ -85,6 +87,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - Run `make check` before pushing Python, TomTom, settings, template, dependency, or security documentation changes.
 - See `docs/plans/2026-06-08-morning-dashboard-baseline.md` for the current completed baseline plan.
+- See `docs/plans/2026-06-09-numeric-setting-error-sanitization.md` for the
+  sanitized numeric setting errors guard.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 

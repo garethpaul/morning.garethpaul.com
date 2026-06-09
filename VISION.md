@@ -17,6 +17,8 @@ Current baseline: `make check` runs offline unit tests, compiles the Python
 files, and runs `scripts/check-baseline.py` to verify placeholder-safe settings,
 TomTom HTTPS URLs, fixture-based route parsing, and `FLASK_DEBUG` opt-in
 behavior, plus positive numeric commute settings.
+Sanitized numeric setting errors keep invalid local configuration values out of
+exception text.
 
 The current focus is:
 
@@ -26,6 +28,7 @@ Priority:
 - Keep home/work coordinates in environment variables or ignored local settings
 - Keep placeholder settings importable without real commute values
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
+- Keep sanitized numeric setting errors from echoing raw local values
 - Keep Flask debug mode opt-in through `FLASK_DEBUG`
 - Avoid committing API keys, location coordinates, or personal commute details
 - Maintain security policy and Python/Flask context
@@ -44,6 +47,7 @@ Contribution rules:
 - Verify parsing with fixtures before live route calls.
 - Document external route-service changes.
 - Preserve positive numeric commute settings validation when changing cost logic.
+- Preserve sanitized numeric setting errors when changing configuration parsing.
 
 ## Security And Privacy
 

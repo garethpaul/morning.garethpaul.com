@@ -63,6 +63,25 @@ class AppTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, f"{setting_name} must be greater than zero"):
                     load_settings(env)
 
+    def test_load_settings_rejects_non_numeric_settings_without_raw_cause(self):
+        env = {
+            "MORNING_HOME_POS": "1,2",
+            "MORNING_WORK_POS": "3,4",
+            "MORNING_WORK_MILES": "not-a-number",
+            "MORNING_MILES_PER_GALLON": "24",
+            "MORNING_COST_PER_GALLON": "5",
+            "TOMTOM_API_KEY": "key",
+        }
+
+        try:
+            load_settings(env)
+        except ValueError as error:
+            self.assertEqual(str(error), "work_miles must be numeric")
+            self.assertIsNone(error.__cause__)
+            self.assertNotIn("not-a-number", str(error))
+        else:
+            self.fail("expected non-numeric setting error")
+
     def test_create_app_renders_work_and_home_routes_without_live_tomtom(self):
         settings = MorningSettings(
             home_pos="1,2",

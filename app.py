@@ -127,8 +127,8 @@ def _first_value(*values: Optional[str]) -> str:
 def _to_float(value: str, name: str) -> float:
     try:
         return float(value)
-    except ValueError as error:
-        raise ValueError(f"{name} must be numeric") from error
+    except ValueError:
+        raise ValueError(f"{name} must be numeric") from None
 
 
 def _positive_float(value: str, name: str) -> float:

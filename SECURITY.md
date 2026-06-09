@@ -32,12 +32,14 @@ Helpful reports include:
 - Home/work coordinates, TomTom route-service data, API keys, `.env` files, logs, and local settings overlays should stay out of git.
 - Flask debug mode should remain opt-in through `FLASK_DEBUG=1` for local development only.
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
+- Sanitized numeric setting errors should identify invalid fields without echoing
+  raw local configuration values.
 
 ## Service and API Notes
 
 For web services, APIs, sockets, or scraping workflows, prioritize reports involving authentication bypass, authorization errors, injection, server-side request forgery, unsafe deserialization, credential leakage, data exposure, or denial-of-service conditions. Use test accounts and minimal proof-of-concept traffic only.
 
-For this commute dashboard, reports should also state whether home/work coordinates, route responses, positive numeric commute settings, or precise commute patterns can be exposed.
+For this commute dashboard, reports should also state whether home/work coordinates, route responses, positive numeric commute settings, sanitized numeric setting errors, or precise commute patterns can be exposed.
 
 ## Dependency and Supply Chain Security
 

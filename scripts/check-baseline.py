@@ -17,6 +17,7 @@ REQUIRED = [
     "settings.py.example",
     "docs/plans/2026-06-08-morning-dashboard-baseline.md",
     "docs/plans/2026-06-08-positive-commute-settings.md",
+    "docs/plans/2026-06-09-numeric-setting-error-sanitization.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -65,6 +66,7 @@ def main() -> int:
     security = (ROOT / "SECURITY.md").read_text(encoding="utf-8", errors="replace")
     changes = (ROOT / "CHANGES.md").read_text(encoding="utf-8", errors="replace")
     settings_plan = (ROOT / "docs/plans/2026-06-08-positive-commute-settings.md").read_text(encoding="utf-8", errors="replace")
+    numeric_error_plan = (ROOT / "docs/plans/2026-06-09-numeric-setting-error-sanitization.md").read_text(encoding="utf-8", errors="replace")
 
     if "_positive_float" not in app_source or "must be greater than zero" not in app_source:
         failures.append("app settings must reject non-positive commute numeric values")
@@ -76,6 +78,16 @@ def main() -> int:
         failures.append("CHANGES must record positive numeric commute settings validation")
     if "status: completed" not in settings_plan:
         failures.append("positive commute settings plan must be marked completed")
+    if "raise ValueError(f\"{name} must be numeric\") from None" not in app_source:
+        failures.append("numeric commute settings must not expose raw conversion values")
+    if "test_load_settings_rejects_non_numeric_settings_without_raw_cause" not in test_app:
+        failures.append("tests must cover sanitized non-numeric commute setting errors")
+    if not all("sanitized numeric setting errors" in text.lower() for text in [readme, vision, security]):
+        failures.append("docs must mention sanitized numeric setting errors")
+    if "sanitized numeric setting errors" not in changes.lower():
+        failures.append("CHANGES must record sanitized numeric setting errors")
+    if "status: completed" not in numeric_error_plan:
+        failures.append("numeric setting error sanitization plan must be marked completed")
 
     if failures:
         for failure in failures:
