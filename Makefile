@@ -1,6 +1,6 @@
 .PHONY: build check clean compile lint static-check test verify
 
-check: clean test compile static-check
+check: clean lint test build
 
 lint: static-check
 

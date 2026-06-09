@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Updated check target gate order so `make check` delegates through `make lint`,
+  `make test`, and `make build`.
 - Added `make lint`, `make test`, and `make build` gate aliases alongside the
   existing `make check` baseline.
 - Added TomTom API key placeholder validation so copied template keys fail

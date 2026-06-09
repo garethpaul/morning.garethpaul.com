@@ -29,6 +29,7 @@ Helpful reports include:
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Dependency manifest detected: requirements.txt. Run `make lint`, `make test`, `make build`, and `make check` after changing Python sources, TomTom route handling, local settings, templates, dependencies, or security docs.
+- Check target gate order should keep `make check` delegated through the named lint, test, and build targets.
 - Home/work coordinates, TomTom route-service data, API keys, `.env` files, logs, and local settings overlays should stay out of git.
 - Flask debug mode should remain opt-in through `FLASK_DEBUG=1` for local development only.
 - Coordinate setting validation should reject malformed home/work positions without echoing raw local values.

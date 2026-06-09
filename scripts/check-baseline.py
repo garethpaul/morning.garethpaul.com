@@ -20,6 +20,7 @@ REQUIRED = [
     "docs/plans/2026-06-09-numeric-setting-error-sanitization.md",
     "docs/plans/2026-06-09-coordinate-setting-validation.md",
     "docs/plans/2026-06-09-coordinate-range-validation.md",
+    "docs/plans/2026-06-09-check-target-gate-order.md",
     "docs/plans/2026-06-09-make-gate-aliases.md",
     "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md",
     "tests/test_app.py",
@@ -74,10 +75,11 @@ def main() -> int:
     numeric_error_plan = (ROOT / "docs/plans/2026-06-09-numeric-setting-error-sanitization.md").read_text(encoding="utf-8", errors="replace")
     coordinate_plan = (ROOT / "docs/plans/2026-06-09-coordinate-setting-validation.md").read_text(encoding="utf-8", errors="replace")
     coordinate_range_plan = (ROOT / "docs/plans/2026-06-09-coordinate-range-validation.md").read_text(encoding="utf-8", errors="replace")
+    check_order_plan = (ROOT / "docs/plans/2026-06-09-check-target-gate-order.md").read_text(encoding="utf-8", errors="replace")
     api_key_plan = (ROOT / "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md").read_text(encoding="utf-8", errors="replace")
     make_gate_plan = (ROOT / "docs/plans/2026-06-09-make-gate-aliases.md").read_text(encoding="utf-8", errors="replace")
 
-    for target in ["lint: static-check", "test:", "build: compile", "compile:", "static-check:", "verify: check", "check: clean test compile static-check"]:
+    for target in ["lint: static-check", "test:", "build: compile", "compile:", "static-check:", "verify: check", "check: clean lint test build"]:
         if target not in makefile:
             failures.append(f"Makefile must expose target: {target}")
 
@@ -121,6 +123,8 @@ def main() -> int:
         failures.append("CHANGES must record coordinate range validation")
     if "status: completed" not in coordinate_range_plan:
         failures.append("coordinate range validation plan must be marked completed")
+    if "status: completed" not in check_order_plan:
+        failures.append("check target gate order plan must be marked completed")
     if "_configured_api_key" not in app_source or "YOUR_TOMTOM_API_KEY" not in app_source:
         failures.append("app settings must reject placeholder TomTom API keys")
     if "test_load_settings_rejects_placeholder_tomtom_api_key" not in test_app:
@@ -133,8 +137,12 @@ def main() -> int:
         failures.append("TomTom API key placeholder validation plan must be marked completed")
     if not all("make lint" in text and "make test" in text and "make build" in text and "make check" in text for text in [readme, vision, security]):
         failures.append("docs must mention lint, test, build, and check gate targets")
+    if not all("check target gate order" in text.lower() for text in [readme, vision, security]):
+        failures.append("docs must mention check target gate order")
     if "make lint" not in changes or "make test" not in changes or "make build" not in changes or "make check" not in changes:
         failures.append("CHANGES must record Make gate aliases")
+    if "check target gate order" not in changes.lower():
+        failures.append("CHANGES must record check target gate order")
     if "status: completed" not in make_gate_plan:
         failures.append("Make gate alias plan must be marked completed")
 

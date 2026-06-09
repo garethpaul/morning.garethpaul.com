@@ -29,7 +29,7 @@ Additional scan context:
 
 - Source directories: static, stuff, templates
 - Dependency and build manifests: requirements.txt
-- Entry points or build surfaces: `make check`, app.py
+- Entry points or build surfaces: `make lint`, `make test`, `make build`, `make check`, app.py
 - Test-looking files: tests/test_app.py, tests/test_tomtom.py
 
 ## Getting Started
@@ -66,7 +66,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - `make lint` runs `scripts/check-baseline.py`, `make test` runs offline unit
   tests, `make build` compiles Python files, and `make check` runs the full
-  clean/test/compile/static-check gate.
+  clean/lint/test/build gate.
+- Check target gate order keeps the full local gate delegated through the same
+  named lint, test, and build targets used before pushing.
 - `python3 -m unittest discover -s tests` verifies configuration, Flask routes, TomTom URL construction, response parsing, and injected HTTP behavior without live TomTom calls.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
@@ -101,6 +103,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-08-morning-dashboard-baseline.md` for the current completed baseline plan.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local gate alias
   baseline.
+- See `docs/plans/2026-06-09-check-target-gate-order.md` for the check target
+  gate order guardrail.
 - See `docs/plans/2026-06-09-numeric-setting-error-sanitization.md` for the
   sanitized numeric setting errors guard.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
