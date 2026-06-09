@@ -77,6 +77,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - `settings.py.example` in this repository is a placeholder template; real values belong in local-only `settings.py` or another ignored local configuration file.
 - Prefer environment variables: `MORNING_HOME_POS`, `MORNING_WORK_POS`, `MORNING_WORK_MILES`, `MORNING_MILES_PER_GALLON`, `MORNING_COST_PER_GALLON`, and `TOMTOM_API_KEY`.
 - Coordinate setting validation requires `MORNING_HOME_POS` and `MORNING_WORK_POS` to be numeric coordinate pairs before TomTom URL construction.
+- Coordinate range validation keeps latitude and longitude values within valid global bounds before TomTom URL construction.
 - TomTom API key placeholder validation rejects copied template values before live route requests.
 - Positive numeric commute settings are required for work miles, miles per gallon, and cost per gallon.
 - Sanitized numeric setting errors name the invalid field without echoing raw
@@ -87,6 +88,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Review changes touching network requests, sockets, or service endpoints; examples from the scan include app.py, stuff/tomtom.py, templates/index.html.
 - Keep TomTom requests on HTTPS and do not enable Flask debug mode in hosted deployments.
 - Keep TomTom API key placeholder validation in place so copied templates fail before live route requests.
+- Keep coordinate range validation in place so impossible home/work positions fail before live route requests.
 - Keep positive numeric commute settings validation in place so the dashboard does not render impossible fuel-cost output.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include stuff/tomtom.py.
 - Tests should use fixture responses and injected HTTP clients instead of live route calls.

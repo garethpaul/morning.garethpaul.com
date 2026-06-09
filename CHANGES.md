@@ -8,6 +8,8 @@
   before live route requests.
 - Added coordinate setting validation so malformed home/work positions fail
   without echoing raw local values.
+- Added coordinate range validation so impossible home/work positions fail
+  without echoing raw local values.
 - Added sanitized numeric setting errors so invalid commute configuration fails
   without echoing raw local values.
 

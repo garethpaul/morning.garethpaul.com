@@ -29,6 +29,7 @@ Priority:
 - Keep home/work coordinates in environment variables or ignored local settings
 - Keep placeholder settings importable without real commute values
 - Keep coordinate setting validation before TomTom URL construction
+- Keep coordinate range validation before TomTom URL construction
 - Keep TomTom API key placeholder validation before live route requests
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
 - Keep sanitized numeric setting errors from echoing raw local values
@@ -52,6 +53,7 @@ Contribution rules:
 - Verify parsing with fixtures before live route calls.
 - Document external route-service changes.
 - Preserve positive numeric commute settings validation when changing cost logic.
+- Preserve coordinate range validation when changing route settings parsing.
 - Preserve sanitized numeric setting errors when changing configuration parsing.
 
 ## Security And Privacy

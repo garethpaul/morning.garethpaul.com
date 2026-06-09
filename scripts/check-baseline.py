@@ -19,6 +19,7 @@ REQUIRED = [
     "docs/plans/2026-06-08-positive-commute-settings.md",
     "docs/plans/2026-06-09-numeric-setting-error-sanitization.md",
     "docs/plans/2026-06-09-coordinate-setting-validation.md",
+    "docs/plans/2026-06-09-coordinate-range-validation.md",
     "docs/plans/2026-06-09-make-gate-aliases.md",
     "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md",
     "tests/test_app.py",
@@ -72,6 +73,7 @@ def main() -> int:
     settings_plan = (ROOT / "docs/plans/2026-06-08-positive-commute-settings.md").read_text(encoding="utf-8", errors="replace")
     numeric_error_plan = (ROOT / "docs/plans/2026-06-09-numeric-setting-error-sanitization.md").read_text(encoding="utf-8", errors="replace")
     coordinate_plan = (ROOT / "docs/plans/2026-06-09-coordinate-setting-validation.md").read_text(encoding="utf-8", errors="replace")
+    coordinate_range_plan = (ROOT / "docs/plans/2026-06-09-coordinate-range-validation.md").read_text(encoding="utf-8", errors="replace")
     api_key_plan = (ROOT / "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md").read_text(encoding="utf-8", errors="replace")
     make_gate_plan = (ROOT / "docs/plans/2026-06-09-make-gate-aliases.md").read_text(encoding="utf-8", errors="replace")
 
@@ -109,6 +111,16 @@ def main() -> int:
         failures.append("CHANGES must record coordinate setting validation")
     if "status: completed" not in coordinate_plan:
         failures.append("coordinate setting validation plan must be marked completed")
+    if "-90 <= latitude <= 90" not in app_source or "-180 <= longitude <= 180" not in app_source:
+        failures.append("app settings must validate coordinate latitude/longitude ranges")
+    if "test_load_settings_rejects_out_of_range_coordinates_without_raw_value" not in test_app:
+        failures.append("tests must cover sanitized coordinate range validation")
+    if not all("coordinate range validation" in text.lower() for text in [readme, vision, security]):
+        failures.append("docs must mention coordinate range validation")
+    if "coordinate range validation" not in changes.lower():
+        failures.append("CHANGES must record coordinate range validation")
+    if "status: completed" not in coordinate_range_plan:
+        failures.append("coordinate range validation plan must be marked completed")
     if "_configured_api_key" not in app_source or "YOUR_TOMTOM_API_KEY" not in app_source:
         failures.append("app settings must reject placeholder TomTom API keys")
     if "test_load_settings_rejects_placeholder_tomtom_api_key" not in test_app:

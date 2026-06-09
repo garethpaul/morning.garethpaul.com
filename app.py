@@ -143,10 +143,12 @@ def _coordinate_pair(value: str, name: str) -> str:
     if len(parts) != 2:
         raise ValueError(f"{name} must be a numeric coordinate pair")
     try:
-        float(parts[0])
-        float(parts[1])
+        latitude = float(parts[0])
+        longitude = float(parts[1])
     except ValueError:
         raise ValueError(f"{name} must be a numeric coordinate pair") from None
+    if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+        raise ValueError(f"{name} must be a numeric coordinate pair")
     return value
 
 

@@ -101,6 +101,32 @@ class AppTests(unittest.TestCase):
         else:
             self.fail("expected invalid coordinate setting error")
 
+    def test_load_settings_rejects_out_of_range_coordinates_without_raw_value(self):
+        base_env = {
+            "MORNING_HOME_POS": "1,2",
+            "MORNING_WORK_POS": "3,4",
+            "MORNING_WORK_MILES": "12",
+            "MORNING_MILES_PER_GALLON": "24",
+            "MORNING_COST_PER_GALLON": "5",
+            "TOMTOM_API_KEY": "key",
+        }
+
+        cases = [
+            ("MORNING_HOME_POS", "91,2", "home_pos"),
+            ("MORNING_WORK_POS", "3,181", "work_pos"),
+        ]
+        for key, value, setting_name in cases:
+            with self.subTest(key=key):
+                env = dict(base_env)
+                env[key] = value
+                try:
+                    load_settings(env)
+                except ValueError as error:
+                    self.assertEqual(str(error), f"{setting_name} must be a numeric coordinate pair")
+                    self.assertNotIn(value, str(error))
+                else:
+                    self.fail("expected out-of-range coordinate setting error")
+
     def test_load_settings_rejects_placeholder_tomtom_api_key(self):
         env = {
             "MORNING_HOME_POS": "1,2",
