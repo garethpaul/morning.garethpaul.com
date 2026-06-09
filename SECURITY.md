@@ -31,6 +31,7 @@ Helpful reports include:
 - Dependency manifest detected: requirements.txt. Run `make check` after changing Python sources, TomTom route handling, local settings, templates, dependencies, or security docs.
 - Home/work coordinates, TomTom route-service data, API keys, `.env` files, logs, and local settings overlays should stay out of git.
 - Flask debug mode should remain opt-in through `FLASK_DEBUG=1` for local development only.
+- Coordinate setting validation should reject malformed home/work positions without echoing raw local values.
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
 - Sanitized numeric setting errors should identify invalid fields without echoing
   raw local configuration values.

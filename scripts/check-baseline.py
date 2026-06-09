@@ -18,6 +18,7 @@ REQUIRED = [
     "docs/plans/2026-06-08-morning-dashboard-baseline.md",
     "docs/plans/2026-06-08-positive-commute-settings.md",
     "docs/plans/2026-06-09-numeric-setting-error-sanitization.md",
+    "docs/plans/2026-06-09-coordinate-setting-validation.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -67,6 +68,7 @@ def main() -> int:
     changes = (ROOT / "CHANGES.md").read_text(encoding="utf-8", errors="replace")
     settings_plan = (ROOT / "docs/plans/2026-06-08-positive-commute-settings.md").read_text(encoding="utf-8", errors="replace")
     numeric_error_plan = (ROOT / "docs/plans/2026-06-09-numeric-setting-error-sanitization.md").read_text(encoding="utf-8", errors="replace")
+    coordinate_plan = (ROOT / "docs/plans/2026-06-09-coordinate-setting-validation.md").read_text(encoding="utf-8", errors="replace")
 
     if "_positive_float" not in app_source or "must be greater than zero" not in app_source:
         failures.append("app settings must reject non-positive commute numeric values")
@@ -88,6 +90,16 @@ def main() -> int:
         failures.append("CHANGES must record sanitized numeric setting errors")
     if "status: completed" not in numeric_error_plan:
         failures.append("numeric setting error sanitization plan must be marked completed")
+    if "_coordinate_pair" not in app_source or "numeric coordinate pair" not in app_source:
+        failures.append("app settings must validate coordinate pairs")
+    if "test_load_settings_rejects_invalid_coordinates_without_raw_value" not in test_app:
+        failures.append("tests must cover sanitized coordinate setting validation")
+    if not all("coordinate setting validation" in text.lower() for text in [readme, vision, security]):
+        failures.append("docs must mention coordinate setting validation")
+    if "coordinate setting validation" not in changes.lower():
+        failures.append("CHANGES must record coordinate setting validation")
+    if "status: completed" not in coordinate_plan:
+        failures.append("coordinate setting validation plan must be marked completed")
 
     if failures:
         for failure in failures:

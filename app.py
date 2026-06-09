@@ -90,8 +90,8 @@ def load_settings(env: Mapping[str, str] = os.environ, settings_module: Optional
         raise ValueError("missing required settings: " + ", ".join(missing))
 
     return MorningSettings(
-        home_pos=values["home_pos"],
-        work_pos=values["work_pos"],
+        home_pos=_coordinate_pair(values["home_pos"], "home_pos"),
+        work_pos=_coordinate_pair(values["work_pos"], "work_pos"),
         work_miles=_positive_float(values["work_miles"], "work_miles"),
         miles_per_gallon=_positive_float(values["miles_per_gallon"], "miles_per_gallon"),
         cost_per_gallon=_positive_float(values["cost_per_gallon"], "cost_per_gallon"),
@@ -136,6 +136,18 @@ def _positive_float(value: str, name: str) -> float:
     if number <= 0:
         raise ValueError(f"{name} must be greater than zero")
     return number
+
+
+def _coordinate_pair(value: str, name: str) -> str:
+    parts = value.split(",")
+    if len(parts) != 2:
+        raise ValueError(f"{name} must be a numeric coordinate pair")
+    try:
+        float(parts[0])
+        float(parts[1])
+    except ValueError:
+        raise ValueError(f"{name} must be a numeric coordinate pair") from None
+    return value
 
 
 def _truthy(value: str) -> bool:
