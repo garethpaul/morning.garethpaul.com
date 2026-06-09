@@ -61,6 +61,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - Run `python app.py` for local development.
 - For Flask CLI usage, set `FLASK_APP=app:create_app`.
 - Set `FLASK_DEBUG=1` only for local debugging.
+- Repository-relative Flask assets keep `static/` and `templates/` resolved
+  from the checked-in app directory even when the process starts elsewhere.
 
 ## Testing and Verification
 
@@ -70,6 +72,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - Check target gate order keeps the full local gate delegated through the same
   named lint, test, and build targets used before pushing.
 - `python3 -m unittest discover -s tests` verifies configuration, Flask routes, TomTom URL construction, response parsing, and injected HTTP behavior without live TomTom calls.
+- Offline tests also cover repository-relative Flask assets so `/static/styles.css`
+  remains available when `create_app` runs from another working directory.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -94,6 +98,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Keep positive numeric commute settings validation in place so the dashboard does not render impossible fuel-cost output.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include stuff/tomtom.py.
 - Tests should use fixture responses and injected HTTP clients instead of live route calls.
+- Keep repository-relative Flask assets in place so changing the process working
+  directory cannot break checked-in templates or static files.
 
 ## Maintenance Notes
 
@@ -107,6 +113,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   gate order guardrail.
 - See `docs/plans/2026-06-09-numeric-setting-error-sanitization.md` for the
   sanitized numeric setting errors guard.
+- See `docs/plans/2026-06-09-repository-relative-flask-assets.md` for the
+  repository-relative Flask assets guardrail.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 

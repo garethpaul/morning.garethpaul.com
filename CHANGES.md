@@ -14,6 +14,8 @@
   without echoing raw local values.
 - Added sanitized numeric setting errors so invalid commute configuration fails
   without echoing raw local values.
+- Added repository-relative Flask assets so static and template files resolve
+  correctly when the app is created outside the repository working directory.
 
 ## 2026-06-08
 

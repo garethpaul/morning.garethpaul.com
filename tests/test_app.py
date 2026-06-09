@@ -1,10 +1,23 @@
 from types import SimpleNamespace
+import os
+import tempfile
 import unittest
 
 from app import MorningSettings, create_app, load_settings
 
 
 class AppTests(unittest.TestCase):
+    def settings(self):
+        return MorningSettings(
+            home_pos="1,2",
+            work_pos="3,4",
+            work_miles=10,
+            miles_per_gallon=20,
+            cost_per_gallon=4,
+            tomtom_api_key="key",
+            news="",
+        )
+
     def test_load_settings_prefers_environment(self):
         settings = load_settings(
             {
@@ -146,15 +159,7 @@ class AppTests(unittest.TestCase):
             self.fail("expected placeholder TomTom API key error")
 
     def test_create_app_renders_work_and_home_routes_without_live_tomtom(self):
-        settings = MorningSettings(
-            home_pos="1,2",
-            work_pos="3,4",
-            work_miles=10,
-            miles_per_gallon=20,
-            cost_per_gallon=4,
-            tomtom_api_key="key",
-            news="",
-        )
+        settings = self.settings()
         calls = []
 
         app = create_app(settings, traffic_client=lambda where, config: calls.append((where, config)) or 123)
@@ -167,6 +172,23 @@ class AppTests(unittest.TestCase):
         self.assertEqual(home.status_code, 200)
         self.assertIn(b"123", work.data)
         self.assertEqual([call[0] for call in calls], ["work", "home"])
+
+    def test_create_app_serves_static_assets_when_cwd_changes(self):
+        current_directory = os.getcwd()
+        try:
+            with tempfile.TemporaryDirectory() as temp_directory:
+                os.chdir(temp_directory)
+                app = create_app(self.settings(), traffic_client=lambda where, config: 0)
+                with app.test_client() as client:
+                    response = client.get("/static/styles.css")
+                    status_code = response.status_code
+                    body = response.get_data()
+                    response.close()
+        finally:
+            os.chdir(current_directory)
+
+        self.assertEqual(status_code, 200)
+        self.assertIn(b".container", body)
 
 
 if __name__ == "__main__":

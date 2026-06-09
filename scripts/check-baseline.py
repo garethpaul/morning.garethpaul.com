@@ -23,6 +23,7 @@ REQUIRED = [
     "docs/plans/2026-06-09-check-target-gate-order.md",
     "docs/plans/2026-06-09-make-gate-aliases.md",
     "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md",
+    "docs/plans/2026-06-09-repository-relative-flask-assets.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -78,6 +79,7 @@ def main() -> int:
     check_order_plan = (ROOT / "docs/plans/2026-06-09-check-target-gate-order.md").read_text(encoding="utf-8", errors="replace")
     api_key_plan = (ROOT / "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md").read_text(encoding="utf-8", errors="replace")
     make_gate_plan = (ROOT / "docs/plans/2026-06-09-make-gate-aliases.md").read_text(encoding="utf-8", errors="replace")
+    flask_assets_plan = (ROOT / "docs/plans/2026-06-09-repository-relative-flask-assets.md").read_text(encoding="utf-8", errors="replace")
 
     for target in ["lint: static-check", "test:", "build: compile", "compile:", "static-check:", "verify: check", "check: clean lint test build"]:
         if target not in makefile:
@@ -145,6 +147,18 @@ def main() -> int:
         failures.append("CHANGES must record check target gate order")
     if "status: completed" not in make_gate_plan:
         failures.append("Make gate alias plan must be marked completed")
+    if "BASE_DIR = Path(__file__).resolve().parent" not in app_source:
+        failures.append("Flask app must derive asset paths from the repository directory")
+    if "static_folder=str(BASE_DIR / \"static\")" not in app_source or "template_folder=str(BASE_DIR / \"templates\")" not in app_source:
+        failures.append("Flask app must use repository-relative static and template folders")
+    if "test_create_app_serves_static_assets_when_cwd_changes" not in test_app:
+        failures.append("tests must cover repository-relative Flask static assets")
+    if not all("repository-relative flask assets" in text.lower() for text in [readme, vision, security]):
+        failures.append("docs must mention repository-relative Flask assets")
+    if "repository-relative flask assets" not in changes.lower():
+        failures.append("CHANGES must record repository-relative Flask assets")
+    if "status: completed" not in flask_assets_plan:
+        failures.append("repository-relative Flask assets plan must be marked completed")
 
     if failures:
         for failure in failures:

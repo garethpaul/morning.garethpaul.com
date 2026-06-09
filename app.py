@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import importlib
 import os
+from pathlib import Path
 from typing import Mapping, Optional
 
 from flask import Flask, render_template
@@ -20,6 +21,7 @@ REQUIRED_SETTINGS = [
     "cost_per_gallon",
     "tomtom_api_key",
 ]
+BASE_DIR = Path(__file__).resolve().parent
 
 
 @dataclass(frozen=True)
@@ -48,8 +50,11 @@ def create_app(
     settings: Optional[MorningSettings] = None,
     traffic_client=traffic_delay_seconds,
 ) -> Flask:
-    app = Flask(__name__)
-    app.static_folder = os.path.join(os.getcwd(), "static")
+    app = Flask(
+        __name__,
+        static_folder=str(BASE_DIR / "static"),
+        template_folder=str(BASE_DIR / "templates"),
+    )
     config = settings or load_settings()
 
     @app.route("/")

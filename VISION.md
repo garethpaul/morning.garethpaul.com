@@ -35,6 +35,7 @@ Priority:
 - Keep sanitized numeric setting errors from echoing raw local values
 - Keep lint, test, build, and check gates mapped to the offline baseline
 - Keep check target gate order delegated through lint, test, and build
+- Keep repository-relative Flask assets independent of the process working directory
 - Keep Flask debug mode opt-in through `FLASK_DEBUG`
 - Avoid committing API keys, location coordinates, or personal commute details
 - Maintain security policy and Python/Flask context
@@ -56,6 +57,7 @@ Contribution rules:
 - Preserve positive numeric commute settings validation when changing cost logic.
 - Preserve coordinate range validation when changing route settings parsing.
 - Preserve sanitized numeric setting errors when changing configuration parsing.
+- Preserve repository-relative Flask assets when changing the app factory.
 
 ## Security And Privacy
 
@@ -66,6 +68,8 @@ Canonical security policy and reporting:
 Home and work coordinates are sensitive. They must stay out of git, and logs
 should avoid recording precise routes or commute patterns. Hosted deployments
 should not enable Flask debug mode.
+Repository-relative Flask assets should keep checked-in static files and
+templates available regardless of the process working directory.
 
 ## What We Will Not Merge (For Now)
 
