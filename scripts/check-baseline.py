@@ -19,6 +19,7 @@ REQUIRED = [
     "docs/plans/2026-06-08-positive-commute-settings.md",
     "docs/plans/2026-06-09-numeric-setting-error-sanitization.md",
     "docs/plans/2026-06-09-coordinate-setting-validation.md",
+    "docs/plans/2026-06-09-make-gate-aliases.md",
     "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
@@ -62,6 +63,7 @@ def main() -> int:
             failures.append(f"compiled Python artifact found: {path.relative_to(ROOT)}")
 
     app_source = (ROOT / "app.py").read_text(encoding="utf-8", errors="replace")
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8", errors="replace")
     test_app = (ROOT / "tests/test_app.py").read_text(encoding="utf-8", errors="replace")
     readme = (ROOT / "README.md").read_text(encoding="utf-8", errors="replace")
     vision = (ROOT / "VISION.md").read_text(encoding="utf-8", errors="replace")
@@ -71,6 +73,11 @@ def main() -> int:
     numeric_error_plan = (ROOT / "docs/plans/2026-06-09-numeric-setting-error-sanitization.md").read_text(encoding="utf-8", errors="replace")
     coordinate_plan = (ROOT / "docs/plans/2026-06-09-coordinate-setting-validation.md").read_text(encoding="utf-8", errors="replace")
     api_key_plan = (ROOT / "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md").read_text(encoding="utf-8", errors="replace")
+    make_gate_plan = (ROOT / "docs/plans/2026-06-09-make-gate-aliases.md").read_text(encoding="utf-8", errors="replace")
+
+    for target in ["lint: static-check", "test:", "build: compile", "compile:", "static-check:", "verify: check", "check: clean test compile static-check"]:
+        if target not in makefile:
+            failures.append(f"Makefile must expose target: {target}")
 
     if "_positive_float" not in app_source or "must be greater than zero" not in app_source:
         failures.append("app settings must reject non-positive commute numeric values")
@@ -112,6 +119,12 @@ def main() -> int:
         failures.append("CHANGES must record TomTom API key placeholder validation")
     if "status: completed" not in api_key_plan:
         failures.append("TomTom API key placeholder validation plan must be marked completed")
+    if not all("make lint" in text and "make test" in text and "make build" in text and "make check" in text for text in [readme, vision, security]):
+        failures.append("docs must mention lint, test, build, and check gate targets")
+    if "make lint" not in changes or "make test" not in changes or "make build" not in changes or "make check" not in changes:
+        failures.append("CHANGES must record Make gate aliases")
+    if "status: completed" not in make_gate_plan:
+        failures.append("Make gate alias plan must be marked completed")
 
     if failures:
         for failure in failures:

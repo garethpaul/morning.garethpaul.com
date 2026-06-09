@@ -46,6 +46,9 @@ Additional scan context:
 git clone https://github.com/garethpaul/morning.garethpaul.com.git
 cd morning.garethpaul.com
 python3 -m pip install -r requirements.txt
+make lint
+make test
+make build
 make check
 cp settings.py.example settings.py
 ```
@@ -61,7 +64,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Testing and Verification
 
-- `make check` runs offline unit tests, compiles Python files, and runs `scripts/check-baseline.py`.
+- `make lint` runs `scripts/check-baseline.py`, `make test` runs offline unit
+  tests, `make build` compiles Python files, and `make check` runs the full
+  clean/test/compile/static-check gate.
 - `python3 -m unittest discover -s tests` verifies configuration, Flask routes, TomTom URL construction, response parsing, and injected HTTP behavior without live TomTom calls.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
@@ -88,8 +93,12 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 ## Maintenance Notes
 
-- Run `make check` before pushing Python, TomTom, settings, template, dependency, or security documentation changes.
+- Run `make lint`, `make test`, `make build`, and `make check` before pushing
+  Python, TomTom, settings, template, dependency, or security documentation
+  changes.
 - See `docs/plans/2026-06-08-morning-dashboard-baseline.md` for the current completed baseline plan.
+- See `docs/plans/2026-06-09-make-gate-aliases.md` for the local gate alias
+  baseline.
 - See `docs/plans/2026-06-09-numeric-setting-error-sanitization.md` for the
   sanitized numeric setting errors guard.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
