@@ -16,7 +16,7 @@ location configuration.
 Current baseline: `make check` runs offline unit tests, compiles the Python
 files, and runs `scripts/check-baseline.py` to verify placeholder-safe settings,
 TomTom HTTPS URLs, fixture-based route parsing, and `FLASK_DEBUG` opt-in
-behavior.
+behavior, plus positive numeric commute settings.
 
 The current focus is:
 
@@ -25,6 +25,7 @@ Priority:
 - Preserve commute-delay and fuel-cost display behavior
 - Keep home/work coordinates in environment variables or ignored local settings
 - Keep placeholder settings importable without real commute values
+- Keep positive numeric commute settings for distance, MPG, and fuel cost
 - Keep Flask debug mode opt-in through `FLASK_DEBUG`
 - Avoid committing API keys, location coordinates, or personal commute details
 - Maintain security policy and Python/Flask context
@@ -42,6 +43,7 @@ Contribution rules:
 - Run `make check` before pushing source or documentation changes.
 - Verify parsing with fixtures before live route calls.
 - Document external route-service changes.
+- Preserve positive numeric commute settings validation when changing cost logic.
 
 ## Security And Privacy
 

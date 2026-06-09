@@ -16,6 +16,7 @@ REQUIRED = [
     "requirements.txt",
     "settings.py.example",
     "docs/plans/2026-06-08-morning-dashboard-baseline.md",
+    "docs/plans/2026-06-08-positive-commute-settings.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -56,6 +57,25 @@ def main() -> int:
             continue
         if path.suffix in {".pyc", ".pyo"}:
             failures.append(f"compiled Python artifact found: {path.relative_to(ROOT)}")
+
+    app_source = (ROOT / "app.py").read_text(encoding="utf-8", errors="replace")
+    test_app = (ROOT / "tests/test_app.py").read_text(encoding="utf-8", errors="replace")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8", errors="replace")
+    vision = (ROOT / "VISION.md").read_text(encoding="utf-8", errors="replace")
+    security = (ROOT / "SECURITY.md").read_text(encoding="utf-8", errors="replace")
+    changes = (ROOT / "CHANGES.md").read_text(encoding="utf-8", errors="replace")
+    settings_plan = (ROOT / "docs/plans/2026-06-08-positive-commute-settings.md").read_text(encoding="utf-8", errors="replace")
+
+    if "_positive_float" not in app_source or "must be greater than zero" not in app_source:
+        failures.append("app settings must reject non-positive commute numeric values")
+    if "test_load_settings_rejects_non_positive_numeric_settings" not in test_app:
+        failures.append("tests must cover non-positive commute numeric values")
+    if not all("positive numeric" in text.lower() for text in [readme, vision, security]):
+        failures.append("docs must mention positive numeric commute settings")
+    if "positive numeric" not in changes.lower():
+        failures.append("CHANGES must record positive numeric commute settings validation")
+    if "status: completed" not in settings_plan:
+        failures.append("positive commute settings plan must be marked completed")
 
     if failures:
         for failure in failures:

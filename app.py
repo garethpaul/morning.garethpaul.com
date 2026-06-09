@@ -35,8 +35,12 @@ class MorningSettings:
 
     @property
     def cost_per_day(self) -> float:
+        if self.work_miles <= 0:
+            raise ValueError("work_miles must be greater than zero")
         if self.miles_per_gallon <= 0:
             raise ValueError("miles_per_gallon must be greater than zero")
+        if self.cost_per_gallon <= 0:
+            raise ValueError("cost_per_gallon must be greater than zero")
         return round(self.work_miles * 2 / self.miles_per_gallon * self.cost_per_gallon, 3)
 
 
@@ -88,9 +92,9 @@ def load_settings(env: Mapping[str, str] = os.environ, settings_module: Optional
     return MorningSettings(
         home_pos=values["home_pos"],
         work_pos=values["work_pos"],
-        work_miles=_to_float(values["work_miles"], "work_miles"),
-        miles_per_gallon=_to_float(values["miles_per_gallon"], "miles_per_gallon"),
-        cost_per_gallon=_to_float(values["cost_per_gallon"], "cost_per_gallon"),
+        work_miles=_positive_float(values["work_miles"], "work_miles"),
+        miles_per_gallon=_positive_float(values["miles_per_gallon"], "miles_per_gallon"),
+        cost_per_gallon=_positive_float(values["cost_per_gallon"], "cost_per_gallon"),
         tomtom_api_key=values["tomtom_api_key"],
         news=values["news"],
         debug=_truthy(env.get("FLASK_DEBUG", _module_value(module, "debug") or "")),
@@ -125,6 +129,13 @@ def _to_float(value: str, name: str) -> float:
         return float(value)
     except ValueError as error:
         raise ValueError(f"{name} must be numeric") from error
+
+
+def _positive_float(value: str, name: str) -> float:
+    number = _to_float(value, name)
+    if number <= 0:
+        raise ValueError(f"{name} must be greater than zero")
+    return number
 
 
 def _truthy(value: str) -> bool:

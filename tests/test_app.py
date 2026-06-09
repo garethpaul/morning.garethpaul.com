@@ -41,6 +41,28 @@ class AppTests(unittest.TestCase):
 
         self.assertEqual(settings.cost_per_day, 4.0)
 
+    def test_load_settings_rejects_non_positive_numeric_settings(self):
+        base_env = {
+            "MORNING_HOME_POS": "1,2",
+            "MORNING_WORK_POS": "3,4",
+            "MORNING_WORK_MILES": "12",
+            "MORNING_MILES_PER_GALLON": "24",
+            "MORNING_COST_PER_GALLON": "5",
+            "TOMTOM_API_KEY": "key",
+        }
+
+        cases = [
+            ("MORNING_WORK_MILES", "0", "work_miles"),
+            ("MORNING_MILES_PER_GALLON", "-1", "miles_per_gallon"),
+            ("MORNING_COST_PER_GALLON", "0", "cost_per_gallon"),
+        ]
+        for key, value, setting_name in cases:
+            with self.subTest(key=key):
+                env = dict(base_env)
+                env[key] = value
+                with self.assertRaisesRegex(ValueError, f"{setting_name} must be greater than zero"):
+                    load_settings(env)
+
     def test_create_app_renders_work_and_home_routes_without_live_tomtom(self):
         settings = MorningSettings(
             home_pos="1,2",

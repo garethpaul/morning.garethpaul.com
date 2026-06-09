@@ -71,11 +71,13 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Home/work coordinates, route API keys, personal commute details, `.env` files, and local settings overlays should stay out of git.
 - `settings.py.example` in this repository is a placeholder template; real values belong in local-only `settings.py` or another ignored local configuration file.
 - Prefer environment variables: `MORNING_HOME_POS`, `MORNING_WORK_POS`, `MORNING_WORK_MILES`, `MORNING_MILES_PER_GALLON`, `MORNING_COST_PER_GALLON`, and `TOMTOM_API_KEY`.
+- Positive numeric commute settings are required for work miles, miles per gallon, and cost per gallon.
 
 ## Security and Privacy Notes
 
 - Review changes touching network requests, sockets, or service endpoints; examples from the scan include app.py, stuff/tomtom.py, templates/index.html.
 - Keep TomTom requests on HTTPS and do not enable Flask debug mode in hosted deployments.
+- Keep positive numeric commute settings validation in place so the dashboard does not render impossible fuel-cost output.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include stuff/tomtom.py.
 - Tests should use fixture responses and injected HTTP clients instead of live route calls.
 
