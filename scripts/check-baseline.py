@@ -19,6 +19,7 @@ REQUIRED = [
     "docs/plans/2026-06-08-positive-commute-settings.md",
     "docs/plans/2026-06-09-numeric-setting-error-sanitization.md",
     "docs/plans/2026-06-09-coordinate-setting-validation.md",
+    "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -69,6 +70,7 @@ def main() -> int:
     settings_plan = (ROOT / "docs/plans/2026-06-08-positive-commute-settings.md").read_text(encoding="utf-8", errors="replace")
     numeric_error_plan = (ROOT / "docs/plans/2026-06-09-numeric-setting-error-sanitization.md").read_text(encoding="utf-8", errors="replace")
     coordinate_plan = (ROOT / "docs/plans/2026-06-09-coordinate-setting-validation.md").read_text(encoding="utf-8", errors="replace")
+    api_key_plan = (ROOT / "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md").read_text(encoding="utf-8", errors="replace")
 
     if "_positive_float" not in app_source or "must be greater than zero" not in app_source:
         failures.append("app settings must reject non-positive commute numeric values")
@@ -100,6 +102,16 @@ def main() -> int:
         failures.append("CHANGES must record coordinate setting validation")
     if "status: completed" not in coordinate_plan:
         failures.append("coordinate setting validation plan must be marked completed")
+    if "_configured_api_key" not in app_source or "YOUR_TOMTOM_API_KEY" not in app_source:
+        failures.append("app settings must reject placeholder TomTom API keys")
+    if "test_load_settings_rejects_placeholder_tomtom_api_key" not in test_app:
+        failures.append("tests must cover TomTom API key placeholder validation")
+    if not all("tomtom api key placeholder validation" in text.lower() for text in [readme, vision, security]):
+        failures.append("docs must mention TomTom API key placeholder validation")
+    if "tomtom api key placeholder validation" not in changes.lower():
+        failures.append("CHANGES must record TomTom API key placeholder validation")
+    if "status: completed" not in api_key_plan:
+        failures.append("TomTom API key placeholder validation plan must be marked completed")
 
     if failures:
         for failure in failures:

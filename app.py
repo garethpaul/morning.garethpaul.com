@@ -95,7 +95,7 @@ def load_settings(env: Mapping[str, str] = os.environ, settings_module: Optional
         work_miles=_positive_float(values["work_miles"], "work_miles"),
         miles_per_gallon=_positive_float(values["miles_per_gallon"], "miles_per_gallon"),
         cost_per_gallon=_positive_float(values["cost_per_gallon"], "cost_per_gallon"),
-        tomtom_api_key=values["tomtom_api_key"],
+        tomtom_api_key=_configured_api_key(values["tomtom_api_key"], "tomtom_api_key"),
         news=values["news"],
         debug=_truthy(env.get("FLASK_DEBUG", _module_value(module, "debug") or "")),
     )
@@ -147,6 +147,13 @@ def _coordinate_pair(value: str, name: str) -> str:
         float(parts[1])
     except ValueError:
         raise ValueError(f"{name} must be a numeric coordinate pair") from None
+    return value
+
+
+def _configured_api_key(value: str, name: str) -> str:
+    normalized = value.upper()
+    if "$(" in value or normalized == "YOUR_TOMTOM_API_KEY" or normalized.startswith("REPLACE_"):
+        raise ValueError(f"{name} must be configured")
     return value
 
 

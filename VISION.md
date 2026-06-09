@@ -28,6 +28,7 @@ Priority:
 - Keep home/work coordinates in environment variables or ignored local settings
 - Keep placeholder settings importable without real commute values
 - Keep coordinate setting validation before TomTom URL construction
+- Keep TomTom API key placeholder validation before live route requests
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
 - Keep sanitized numeric setting errors from echoing raw local values
 - Keep Flask debug mode opt-in through `FLASK_DEBUG`

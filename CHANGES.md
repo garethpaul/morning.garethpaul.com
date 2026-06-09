@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Added TomTom API key placeholder validation so copied template keys fail
+  before live route requests.
 - Added coordinate setting validation so malformed home/work positions fail
   without echoing raw local values.
 - Added sanitized numeric setting errors so invalid commute configuration fails

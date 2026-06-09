@@ -101,6 +101,24 @@ class AppTests(unittest.TestCase):
         else:
             self.fail("expected invalid coordinate setting error")
 
+    def test_load_settings_rejects_placeholder_tomtom_api_key(self):
+        env = {
+            "MORNING_HOME_POS": "1,2",
+            "MORNING_WORK_POS": "3,4",
+            "MORNING_WORK_MILES": "12",
+            "MORNING_MILES_PER_GALLON": "24",
+            "MORNING_COST_PER_GALLON": "5",
+            "TOMTOM_API_KEY": "YOUR_TOMTOM_API_KEY",
+        }
+
+        try:
+            load_settings(env)
+        except ValueError as error:
+            self.assertEqual(str(error), "tomtom_api_key must be configured")
+            self.assertNotIn("YOUR_TOMTOM_API_KEY", str(error))
+        else:
+            self.fail("expected placeholder TomTom API key error")
+
     def test_create_app_renders_work_and_home_routes_without_live_tomtom(self):
         settings = MorningSettings(
             home_pos="1,2",
