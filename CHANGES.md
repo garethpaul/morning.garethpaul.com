@@ -2,6 +2,8 @@
 
 ## 2026-06-10
 
+- Added TomTom delay value validation so booleans, fractional values, and
+  negative delays fail before dashboard rendering.
 - Added pinned, read-only Python 3.12 hosted validation for dependency
   installation, `pip check`, and offline Flask/TomTom tests.
 - Added TomTom JSON response validation so malformed route-service responses

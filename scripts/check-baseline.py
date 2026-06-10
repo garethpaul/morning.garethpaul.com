@@ -27,6 +27,7 @@ REQUIRED = [
     "docs/plans/2026-06-09-repository-relative-flask-assets.md",
     "docs/plans/2026-06-10-tomtom-json-response-validation.md",
     "docs/plans/2026-06-10-hosted-python-validation.md",
+    "docs/plans/2026-06-10-tomtom-delay-value-validation.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -85,6 +86,7 @@ def main() -> int:
     flask_assets_plan = (ROOT / "docs/plans/2026-06-09-repository-relative-flask-assets.md").read_text(encoding="utf-8", errors="replace")
     tomtom_json_plan = (ROOT / "docs/plans/2026-06-10-tomtom-json-response-validation.md").read_text(encoding="utf-8", errors="replace")
     hosted_validation_plan = (ROOT / "docs/plans/2026-06-10-hosted-python-validation.md").read_text(encoding="utf-8", errors="replace")
+    tomtom_delay_plan = (ROOT / "docs/plans/2026-06-10-tomtom-delay-value-validation.md").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
     tomtom_source = (ROOT / "stuff" / "tomtom.py").read_text(encoding="utf-8", errors="replace")
 
@@ -194,6 +196,16 @@ def main() -> int:
         failures.append("CHANGES must record TomTom JSON response validation")
     if "status: completed" not in tomtom_json_plan:
         failures.append("TomTom JSON response validation plan must be marked completed")
+    if "isinstance(value, bool)" not in tomtom_source or "if delay < 0" not in tomtom_source or "normalized.isascii()" not in tomtom_source:
+        failures.append("TomTom delay parsing must accept only non-negative integers or ASCII digit strings")
+    if "test_parse_delay_seconds_rejects_invalid_delay_values" not in test_tomtom or "True, False, -1, 1.5" not in test_tomtom:
+        failures.append("tests must cover invalid TomTom delay value types and ranges")
+    if not all("tomtom delay value validation" in text.lower() for text in [readme, vision, security]):
+        failures.append("docs must mention TomTom delay value validation")
+    if "tomtom delay value validation" not in changes.lower():
+        failures.append("CHANGES must record TomTom delay value validation")
+    if "status: completed" not in tomtom_delay_plan or "non-negative integer" not in tomtom_delay_plan:
+        failures.append("TomTom delay value validation plan must be completed and document the contract")
 
     if failures:
         for failure in failures:
