@@ -24,6 +24,7 @@ REQUIRED = [
     "docs/plans/2026-06-09-make-gate-aliases.md",
     "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md",
     "docs/plans/2026-06-09-repository-relative-flask-assets.md",
+    "docs/plans/2026-06-10-tomtom-json-response-validation.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -80,6 +81,9 @@ def main() -> int:
     api_key_plan = (ROOT / "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md").read_text(encoding="utf-8", errors="replace")
     make_gate_plan = (ROOT / "docs/plans/2026-06-09-make-gate-aliases.md").read_text(encoding="utf-8", errors="replace")
     flask_assets_plan = (ROOT / "docs/plans/2026-06-09-repository-relative-flask-assets.md").read_text(encoding="utf-8", errors="replace")
+    tomtom_json_plan = (ROOT / "docs/plans/2026-06-10-tomtom-json-response-validation.md").read_text(encoding="utf-8", errors="replace")
+    tomtom_source = (ROOT / "stuff" / "tomtom.py").read_text(encoding="utf-8", errors="replace")
+    test_tomtom = (ROOT / "tests" / "test_tomtom.py").read_text(encoding="utf-8", errors="replace")
 
     for target in ["lint: static-check", "test:", "build: compile", "compile:", "static-check:", "verify: check", "check: clean lint test build"]:
         if target not in makefile:
@@ -159,6 +163,16 @@ def main() -> int:
         failures.append("CHANGES must record repository-relative Flask assets")
     if "status: completed" not in flask_assets_plan:
         failures.append("repository-relative Flask assets plan must be marked completed")
+    if "json.JSONDecodeError" not in tomtom_source or "TomTom response must be valid JSON" not in tomtom_source:
+        failures.append("TomTom response parsing must reject malformed JSON with a stable error")
+    if "test_parse_delay_seconds_rejects_invalid_json" not in test_tomtom:
+        failures.append("tests must cover TomTom JSON response validation")
+    if not all("tomtom json response validation" in text.lower() for text in [readme, vision, security]):
+        failures.append("docs must mention TomTom JSON response validation")
+    if "tomtom json response validation" not in changes.lower():
+        failures.append("CHANGES must record TomTom JSON response validation")
+    if "status: completed" not in tomtom_json_plan:
+        failures.append("TomTom JSON response validation plan must be marked completed")
 
     if failures:
         for failure in failures:

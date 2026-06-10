@@ -35,6 +35,7 @@ Helpful reports include:
 - Coordinate setting validation should reject malformed home/work positions without echoing raw local values.
 - Coordinate range validation should reject impossible latitude/longitude values without echoing raw local values.
 - TomTom API key placeholder validation should reject copied template keys before live route requests.
+- TomTom JSON response validation should reject malformed route responses before delay parsing.
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
 - Sanitized numeric setting errors should identify invalid fields without echoing
   raw local configuration values.
@@ -45,7 +46,7 @@ Helpful reports include:
 
 For web services, APIs, sockets, or scraping workflows, prioritize reports involving authentication bypass, authorization errors, injection, server-side request forgery, unsafe deserialization, credential leakage, data exposure, or denial-of-service conditions. Use test accounts and minimal proof-of-concept traffic only.
 
-For this commute dashboard, reports should also state whether home/work coordinates, coordinate range validation, route responses, TomTom API key placeholder validation, positive numeric commute settings, sanitized numeric setting errors, repository-relative Flask assets, or precise commute patterns can be exposed.
+For this commute dashboard, reports should also state whether home/work coordinates, coordinate range validation, route responses, TomTom API key placeholder validation, TomTom JSON response validation, positive numeric commute settings, sanitized numeric setting errors, repository-relative Flask assets, or precise commute patterns can be exposed.
 
 ## Dependency and Supply Chain Security
 

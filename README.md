@@ -74,6 +74,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `python3 -m unittest discover -s tests` verifies configuration, Flask routes, TomTom URL construction, response parsing, and injected HTTP behavior without live TomTom calls.
 - Offline tests also cover repository-relative Flask assets so `/static/styles.css`
   remains available when `create_app` runs from another working directory.
+- Offline tests cover TomTom JSON response validation so malformed route-service
+  responses fail with stable parser errors.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -85,6 +87,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Coordinate setting validation requires `MORNING_HOME_POS` and `MORNING_WORK_POS` to be numeric coordinate pairs before TomTom URL construction.
 - Coordinate range validation keeps latitude and longitude values within valid global bounds before TomTom URL construction.
 - TomTom API key placeholder validation rejects copied template values before live route requests.
+- TomTom JSON response validation rejects malformed route-service responses
+  before reading delay fields.
 - Positive numeric commute settings are required for work miles, miles per gallon, and cost per gallon.
 - Sanitized numeric setting errors name the invalid field without echoing raw
   local configuration values.
@@ -94,6 +98,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Review changes touching network requests, sockets, or service endpoints; examples from the scan include app.py, stuff/tomtom.py, templates/index.html.
 - Keep TomTom requests on HTTPS and do not enable Flask debug mode in hosted deployments.
 - Keep TomTom API key placeholder validation in place so copied templates fail before live route requests.
+- Keep TomTom JSON response validation in place so malformed route responses
+  fail before delay parsing.
 - Keep coordinate range validation in place so impossible home/work positions fail before live route requests.
 - Keep positive numeric commute settings validation in place so the dashboard does not render impossible fuel-cost output.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include stuff/tomtom.py.
@@ -115,6 +121,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   sanitized numeric setting errors guard.
 - See `docs/plans/2026-06-09-repository-relative-flask-assets.md` for the
   repository-relative Flask assets guardrail.
+- See `docs/plans/2026-06-10-tomtom-json-response-validation.md` for the
+  TomTom JSON response validation guardrail.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 

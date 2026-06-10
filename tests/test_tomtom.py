@@ -30,6 +30,10 @@ class TomTomTests(unittest.TestCase):
         self.assertEqual(parse_delay_seconds(payload), 42)
         self.assertEqual(parse_delay_seconds(json.dumps(payload)), 42)
 
+    def test_parse_delay_seconds_rejects_invalid_json(self):
+        with self.assertRaisesRegex(ValueError, "TomTom response must be valid JSON"):
+            parse_delay_seconds("<html>not route json</html>")
+
     def test_traffic_delay_seconds_injects_http_get(self):
         settings = SimpleNamespace(home_pos="1,2", work_pos="3,4", tomtom_api_key="key")
         calls = []

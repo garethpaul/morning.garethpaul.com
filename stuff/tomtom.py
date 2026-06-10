@@ -51,7 +51,10 @@ def traffic_delay_seconds(where: str, settings, http_get: Callable = requests.ge
 
 def parse_delay_seconds(payload) -> int:
     if isinstance(payload, str):
-        payload = json.loads(payload)
+        try:
+            payload = json.loads(payload)
+        except json.JSONDecodeError as error:
+            raise ValueError("TomTom response must be valid JSON") from error
     try:
         return int(payload["route"]["summary"]["totalDelaySeconds"])
     except (KeyError, TypeError, ValueError) as error:

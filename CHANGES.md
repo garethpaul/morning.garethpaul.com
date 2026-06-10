@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-10
+
+- Added TomTom JSON response validation so malformed route-service responses
+  raise stable parser errors before delay parsing.
+
 ## 2026-06-09
 
 - Updated check target gate order so `make check` delegates through `make lint`,
