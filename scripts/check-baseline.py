@@ -9,6 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = [
     ".gitignore",
+    ".github/workflows/check.yml",
     "Makefile",
     "README.md",
     "SECURITY.md",
@@ -25,6 +26,7 @@ REQUIRED = [
     "docs/plans/2026-06-09-tomtom-api-key-placeholder-validation.md",
     "docs/plans/2026-06-09-repository-relative-flask-assets.md",
     "docs/plans/2026-06-10-tomtom-json-response-validation.md",
+    "docs/plans/2026-06-10-hosted-python-validation.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -82,7 +84,26 @@ def main() -> int:
     make_gate_plan = (ROOT / "docs/plans/2026-06-09-make-gate-aliases.md").read_text(encoding="utf-8", errors="replace")
     flask_assets_plan = (ROOT / "docs/plans/2026-06-09-repository-relative-flask-assets.md").read_text(encoding="utf-8", errors="replace")
     tomtom_json_plan = (ROOT / "docs/plans/2026-06-10-tomtom-json-response-validation.md").read_text(encoding="utf-8", errors="replace")
+    hosted_validation_plan = (ROOT / "docs/plans/2026-06-10-hosted-python-validation.md").read_text(encoding="utf-8", errors="replace")
+    workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
     tomtom_source = (ROOT / "stuff" / "tomtom.py").read_text(encoding="utf-8", errors="replace")
+
+    if "status: completed" not in hosted_validation_plan or "make check" not in hosted_validation_plan:
+        failures.append("hosted Python validation plan must be marked completed")
+    if not all(value in workflow for value in [
+        "permissions:\n  contents: read",
+        "cancel-in-progress: true",
+        "runs-on: ubuntu-24.04",
+        "timeout-minutes: 10",
+        "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+        "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
+        'python-version: "3.12"',
+        "cache-dependency-path: requirements.txt",
+        "python -m pip install --requirement requirements.txt",
+        "python -m pip check",
+        "run: make check",
+    ]):
+        failures.append("Check workflow must stay pinned, read-only, bounded, and dependency-aware")
     test_tomtom = (ROOT / "tests" / "test_tomtom.py").read_text(encoding="utf-8", errors="replace")
 
     for target in ["lint: static-check", "test:", "build: compile", "compile:", "static-check:", "verify: check", "check: clean lint test build"]:

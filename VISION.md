@@ -46,7 +46,8 @@ Priority:
 Next priorities:
 
 - Add weather or news inputs behind the same fixture-first testing approach
-- Add CI once the repository owner wants verification on every push
+- Keep pinned, read-only Python 3.12 hosted validation covering dependency
+  installation, `pip check`, and offline route tests without TomTom access
 - Document deployment environment variables for any hosted deployment
 
 Contribution rules:

@@ -71,6 +71,10 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   clean/lint/test/build gate.
 - Check target gate order keeps the full local gate delegated through the same
   named lint, test, and build targets used before pushing.
+- Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt`, runs
+  `pip check`, and executes `make check` on Python 3.12. Hosted tests use
+  fixtures and injected HTTP calls without a TomTom key, personal coordinates,
+  local settings, or live route requests.
 - `python3 -m unittest discover -s tests` verifies configuration, Flask routes, TomTom URL construction, response parsing, and injected HTTP behavior without live TomTom calls.
 - Offline tests also cover repository-relative Flask assets so `/static/styles.css`
   remains available when `create_app` runs from another working directory.
