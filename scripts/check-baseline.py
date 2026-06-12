@@ -176,6 +176,12 @@ Werkzeug==3.1.8
         "make check",
         "hostile mutations",
         "git diff --check",
+        "1adf9d43e3dcea2fb211ea3318d56bc90c610ac5",
+        "27437919847",
+        "27437931925",
+        "27437930574",
+        "all five exact-head checks successful",
+        "zero open PR-scoped",
     ]):
         failures.append("dependency constraints plan must preserve exact local verification evidence")
     test_tomtom = (ROOT / "tests" / "test_tomtom.py").read_text(encoding="utf-8", errors="replace")
