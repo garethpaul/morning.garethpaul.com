@@ -24,6 +24,8 @@ TomTom JSON response validation keeps malformed route-service responses on a
 stable parser error path before delay parsing.
 TomTom delay value validation keeps parsed route delays on a non-negative
 integer contract.
+The bounded TomTom response keeps decompressed content entering JSON parsing at
+or below 1 MiB and closes the HTTP response deterministically.
 
 The current focus is:
 
@@ -37,6 +39,7 @@ Priority:
 - Keep TomTom API key placeholder validation before live route requests
 - Keep TomTom JSON response validation before route delay parsing
 - Keep TomTom delay value validation before rendering route delay data
+- Keep the bounded TomTom response before JSON parsing
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
 - Keep sanitized numeric setting errors from echoing raw local values
 - Keep lint, test, build, and check gates mapped to the offline baseline

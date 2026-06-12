@@ -1,6 +1,6 @@
 # Bounded TomTom Response
 
-status: planned
+status: completed
 
 ## Context
 
@@ -49,15 +49,19 @@ entering JSON parsing rather than all buffering in the HTTP stack.
 
 ## Verification
 
+Completed locally on 2026-06-12:
+
 - `python3 -m py_compile stuff/tomtom.py tests/test_tomtom.py scripts/check-baseline.py`
-- focused TomTom tests
+- focused TomTom tests (8 tests)
 - `make lint`
-- `make test`
+- `make test` (17 tests)
 - `make build`
 - `make check`
-- hostile mutations removing the overflow probe or response closure
+- hostile mutations removing the overflow guard or response closure were each
+  rejected by the static contract
 - `git diff --check`
-- hosted push and pull-request checks
+
+Hosted push and pull-request checks will be recorded after the branch is pushed.
 
 ## Boundaries
 

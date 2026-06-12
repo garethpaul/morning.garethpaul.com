@@ -41,6 +41,8 @@ Helpful reports include:
 - TomTom JSON response validation should reject malformed route responses before delay parsing.
 - TomTom delay value validation should reject booleans, fractional values, and
   negative delays before route data reaches the dashboard.
+- The bounded TomTom response should reject more than 1 MiB of decompressed
+  parser input and close HTTP responses without exposing their content.
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
 - Sanitized numeric setting errors should identify invalid fields without echoing
   raw local configuration values.

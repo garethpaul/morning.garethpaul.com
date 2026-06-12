@@ -6,12 +6,25 @@ from stuff.tomtom import parse_delay_seconds, route_url, traffic_delay_seconds
 
 
 class FakeResponse:
-    def __init__(self, text):
-        self.text = text
+    def __init__(self, body, status_error=None):
+        self.body = body.encode() if isinstance(body, str) else body
+        self.status_error = status_error
         self.raised = False
+        self.closed = False
+        self.chunk_sizes = []
 
     def raise_for_status(self):
         self.raised = True
+        if self.status_error:
+            raise self.status_error
+
+    def iter_content(self, chunk_size):
+        self.chunk_sizes.append(chunk_size)
+        for offset in range(0, len(self.body), chunk_size):
+            yield self.body[offset:offset + chunk_size]
+
+    def close(self):
+        self.closed = True
 
 
 class TomTomTests(unittest.TestCase):
@@ -51,13 +64,36 @@ class TomTomTests(unittest.TestCase):
         settings = SimpleNamespace(home_pos="1,2", work_pos="3,4", tomtom_api_key="key")
         calls = []
 
-        def fake_get(url, headers, timeout):
-            calls.append((url, headers, timeout))
-            return FakeResponse('{"route": {"summary": {"totalDelaySeconds": 99}}}')
+        response = FakeResponse('{"route": {"summary": {"totalDelaySeconds": 99}}}')
+
+        def fake_get(url, headers, timeout, stream):
+            calls.append((url, headers, timeout, stream))
+            return response
 
         self.assertEqual(traffic_delay_seconds("home", settings, http_get=fake_get), 99)
         self.assertEqual(calls[0][2], 10)
+        self.assertTrue(calls[0][3])
         self.assertIn("User-Agent", calls[0][1])
+        self.assertTrue(response.raised)
+        self.assertTrue(response.closed)
+
+    def test_traffic_delay_seconds_rejects_oversized_response_and_closes_it(self):
+        settings = SimpleNamespace(home_pos="1,2", work_pos="3,4", tomtom_api_key="key")
+        response = FakeResponse(b"x" * (1024 * 1024 + 1))
+
+        with self.assertRaisesRegex(ValueError, "TomTom response exceeds 1 MiB limit"):
+            traffic_delay_seconds("work", settings, http_get=lambda *args, **kwargs: response)
+
+        self.assertTrue(response.closed)
+
+    def test_traffic_delay_seconds_closes_response_when_status_check_fails(self):
+        settings = SimpleNamespace(home_pos="1,2", work_pos="3,4", tomtom_api_key="key")
+        response = FakeResponse(b"", status_error=RuntimeError("status failed"))
+
+        with self.assertRaisesRegex(RuntimeError, "status failed"):
+            traffic_delay_seconds("work", settings, http_get=lambda *args, **kwargs: response)
+
+        self.assertTrue(response.closed)
 
 
 if __name__ == "__main__":

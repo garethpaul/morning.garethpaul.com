@@ -19,6 +19,8 @@ USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) "
     "AppleWebKit/537.27 (KHTML, like Gecko) Chrome/26.0.1386.0 Safari/537.27"
 )
+MAXIMUM_TOMTOM_RESPONSE_BYTES = 1024 * 1024
+TOMTOM_RESPONSE_CHUNK_BYTES = 64 * 1024
 
 
 def route_url(where: str, settings) -> str:
@@ -44,13 +46,29 @@ def traffic_delay_seconds(where: str, settings, http_get: Callable = requests.ge
             "Referer": "https://routes.tomtom.com/",
         },
         timeout=10,
+        stream=True,
     )
-    response.raise_for_status()
-    return parse_delay_seconds(response.text)
+    try:
+        response.raise_for_status()
+        return parse_delay_seconds(read_tomtom_response(response))
+    finally:
+        response.close()
+
+
+def read_tomtom_response(response) -> bytes:
+    body = bytearray()
+    for chunk in response.iter_content(chunk_size=TOMTOM_RESPONSE_CHUNK_BYTES):
+        if not chunk:
+            continue
+        remaining = MAXIMUM_TOMTOM_RESPONSE_BYTES + 1 - len(body)
+        body.extend(chunk[:remaining])
+        if len(body) > MAXIMUM_TOMTOM_RESPONSE_BYTES:
+            raise ValueError("TomTom response exceeds 1 MiB limit")
+    return bytes(body)
 
 
 def parse_delay_seconds(payload) -> int:
-    if isinstance(payload, str):
+    if isinstance(payload, (str, bytes, bytearray)):
         try:
             payload = json.loads(payload)
         except json.JSONDecodeError as error:

@@ -28,6 +28,7 @@ REQUIRED = [
     "docs/plans/2026-06-10-tomtom-json-response-validation.md",
     "docs/plans/2026-06-10-hosted-python-validation.md",
     "docs/plans/2026-06-10-tomtom-delay-value-validation.md",
+    "docs/plans/2026-06-12-bounded-tomtom-response.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -87,6 +88,7 @@ def main() -> int:
     tomtom_json_plan = (ROOT / "docs/plans/2026-06-10-tomtom-json-response-validation.md").read_text(encoding="utf-8", errors="replace")
     hosted_validation_plan = (ROOT / "docs/plans/2026-06-10-hosted-python-validation.md").read_text(encoding="utf-8", errors="replace")
     tomtom_delay_plan = (ROOT / "docs/plans/2026-06-10-tomtom-delay-value-validation.md").read_text(encoding="utf-8", errors="replace")
+    bounded_response_plan = (ROOT / "docs/plans/2026-06-12-bounded-tomtom-response.md").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
     tomtom_source = (ROOT / "stuff" / "tomtom.py").read_text(encoding="utf-8", errors="replace")
 
@@ -206,6 +208,27 @@ def main() -> int:
         failures.append("CHANGES must record TomTom delay value validation")
     if "status: completed" not in tomtom_delay_plan or "non-negative integer" not in tomtom_delay_plan:
         failures.append("TomTom delay value validation plan must be completed and document the contract")
+    if not all(value in tomtom_source for value in [
+        "MAXIMUM_TOMTOM_RESPONSE_BYTES = 1024 * 1024",
+        "stream=True",
+        "response.iter_content",
+        "remaining = MAXIMUM_TOMTOM_RESPONSE_BYTES + 1 - len(body)",
+        "body.extend(chunk[:remaining])",
+        "if len(body) > MAXIMUM_TOMTOM_RESPONSE_BYTES",
+        "TomTom response exceeds 1 MiB limit",
+        "finally:\n        response.close()",
+    ]):
+        failures.append("TomTom responses must be streamed, bounded, and closed before parsing")
+    if not all(value in test_tomtom for value in [
+        "test_traffic_delay_seconds_rejects_oversized_response_and_closes_it",
+        "test_traffic_delay_seconds_closes_response_when_status_check_fails",
+        "self.assertTrue(response.closed)",
+    ]):
+        failures.append("tests must cover bounded and closed TomTom responses")
+    if not all("bounded TomTom response" in text for text in [readme, vision, security, changes]):
+        failures.append("docs must describe the bounded TomTom response")
+    if "status: completed" not in bounded_response_plan or "hostile mutations" not in bounded_response_plan:
+        failures.append("bounded TomTom response plan must record completed verification")
 
     if failures:
         for failure in failures:

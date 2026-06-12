@@ -80,6 +80,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   remains available when `create_app` runs from another working directory.
 - Offline tests cover TomTom JSON response validation so malformed route-service
   responses fail with stable parser errors.
+- The bounded TomTom response reader streams at most 1 MiB of decompressed
+  content into JSON parsing and closes responses on success or failure.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -95,6 +97,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   before reading delay fields.
 - TomTom delay value validation accepts only non-negative integers or ASCII
   digit strings before rendering route delays.
+- The bounded TomTom response rejects more than 1 MiB before JSON parsing;
+  lower HTTP layers may still buffer transport data.
 - Positive numeric commute settings are required for work miles, miles per gallon, and cost per gallon.
 - Sanitized numeric setting errors name the invalid field without echoing raw
   local configuration values.
