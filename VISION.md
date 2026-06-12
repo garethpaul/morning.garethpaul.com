@@ -22,6 +22,8 @@ Sanitized numeric setting errors keep invalid local configuration values out of
 exception text.
 TomTom JSON response validation keeps malformed route-service responses on a
 stable parser error path before delay parsing.
+TomTom delay value validation keeps parsed route delays on a non-negative
+integer contract.
 
 The current focus is:
 
@@ -34,6 +36,7 @@ Priority:
 - Keep coordinate range validation before TomTom URL construction
 - Keep TomTom API key placeholder validation before live route requests
 - Keep TomTom JSON response validation before route delay parsing
+- Keep TomTom delay value validation before rendering route delay data
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
 - Keep sanitized numeric setting errors from echoing raw local values
 - Keep lint, test, build, and check gates mapped to the offline baseline
@@ -46,7 +49,8 @@ Priority:
 Next priorities:
 
 - Add weather or news inputs behind the same fixture-first testing approach
-- Add CI once the repository owner wants verification on every push
+- Keep pinned, read-only Python 3.12 hosted validation covering dependency
+  installation, `pip check`, and offline route tests without TomTom access
 - Document deployment environment variables for any hosted deployment
 
 Contribution rules:

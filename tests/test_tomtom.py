@@ -34,6 +34,19 @@ class TomTomTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "TomTom response must be valid JSON"):
             parse_delay_seconds("<html>not route json</html>")
 
+    def test_parse_delay_seconds_accepts_non_negative_integers(self):
+        for delay in (0, 42, " 42 "):
+            with self.subTest(delay=delay):
+                payload = {"route": {"summary": {"totalDelaySeconds": delay}}}
+                self.assertEqual(parse_delay_seconds(payload), int(delay))
+
+    def test_parse_delay_seconds_rejects_invalid_delay_values(self):
+        for delay in (True, False, -1, 1.5, "-1", "1.5", ""):
+            with self.subTest(delay=delay):
+                payload = {"route": {"summary": {"totalDelaySeconds": delay}}}
+                with self.assertRaisesRegex(ValueError, "must be a non-negative integer"):
+                    parse_delay_seconds(payload)
+
     def test_traffic_delay_seconds_injects_http_get(self):
         settings = SimpleNamespace(home_pos="1,2", work_pos="3,4", tomtom_api_key="key")
         calls = []

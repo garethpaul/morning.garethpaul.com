@@ -29,6 +29,9 @@ Helpful reports include:
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Dependency manifest detected: requirements.txt. Run `make lint`, `make test`, `make build`, and `make check` after changing Python sources, TomTom route handling, local settings, templates, dependencies, or security docs.
+- The pinned Linux workflow installs declared dependencies and runs offline
+  tests without TomTom credentials, personal coordinates, local settings, or
+  live route requests.
 - Check target gate order should keep `make check` delegated through the named lint, test, and build targets.
 - Home/work coordinates, TomTom route-service data, API keys, `.env` files, logs, and local settings overlays should stay out of git.
 - Flask debug mode should remain opt-in through `FLASK_DEBUG=1` for local development only.
@@ -36,6 +39,8 @@ Helpful reports include:
 - Coordinate range validation should reject impossible latitude/longitude values without echoing raw local values.
 - TomTom API key placeholder validation should reject copied template keys before live route requests.
 - TomTom JSON response validation should reject malformed route responses before delay parsing.
+- TomTom delay value validation should reject booleans, fractional values, and
+  negative delays before route data reaches the dashboard.
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
 - Sanitized numeric setting errors should identify invalid fields without echoing
   raw local configuration values.

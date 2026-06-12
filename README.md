@@ -71,6 +71,10 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   clean/lint/test/build gate.
 - Check target gate order keeps the full local gate delegated through the same
   named lint, test, and build targets used before pushing.
+- Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt`, runs
+  `pip check`, and executes `make check` on Python 3.12. Hosted tests use
+  fixtures and injected HTTP calls without a TomTom key, personal coordinates,
+  local settings, or live route requests.
 - `python3 -m unittest discover -s tests` verifies configuration, Flask routes, TomTom URL construction, response parsing, and injected HTTP behavior without live TomTom calls.
 - Offline tests also cover repository-relative Flask assets so `/static/styles.css`
   remains available when `create_app` runs from another working directory.
@@ -89,6 +93,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - TomTom API key placeholder validation rejects copied template values before live route requests.
 - TomTom JSON response validation rejects malformed route-service responses
   before reading delay fields.
+- TomTom delay value validation accepts only non-negative integers or ASCII
+  digit strings before rendering route delays.
 - Positive numeric commute settings are required for work miles, miles per gallon, and cost per gallon.
 - Sanitized numeric setting errors name the invalid field without echoing raw
   local configuration values.
@@ -100,6 +106,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Keep TomTom API key placeholder validation in place so copied templates fail before live route requests.
 - Keep TomTom JSON response validation in place so malformed route responses
   fail before delay parsing.
+- Keep TomTom delay value validation in place so booleans, fractional values,
+  and negative delays do not reach the dashboard.
 - Keep coordinate range validation in place so impossible home/work positions fail before live route requests.
 - Keep positive numeric commute settings validation in place so the dashboard does not render impossible fuel-cost output.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include stuff/tomtom.py.

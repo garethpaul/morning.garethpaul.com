@@ -56,6 +56,25 @@ def parse_delay_seconds(payload) -> int:
         except json.JSONDecodeError as error:
             raise ValueError("TomTom response must be valid JSON") from error
     try:
-        return int(payload["route"]["summary"]["totalDelaySeconds"])
-    except (KeyError, TypeError, ValueError) as error:
+        value = payload["route"]["summary"]["totalDelaySeconds"]
+    except (KeyError, TypeError) as error:
         raise ValueError("TomTom response missing route.summary.totalDelaySeconds") from error
+
+    if isinstance(value, bool):
+        raise ValueError("TomTom totalDelaySeconds must be a non-negative integer")
+    if isinstance(value, int):
+        delay = value
+    elif isinstance(value, str):
+        normalized = value.strip()
+        if not normalized.isascii() or not normalized.isdigit():
+            raise ValueError("TomTom totalDelaySeconds must be a non-negative integer")
+        try:
+            delay = int(normalized)
+        except ValueError as error:
+            raise ValueError("TomTom totalDelaySeconds must be a non-negative integer") from error
+    else:
+        raise ValueError("TomTom totalDelaySeconds must be a non-negative integer")
+
+    if delay < 0:
+        raise ValueError("TomTom totalDelaySeconds must be a non-negative integer")
+    return delay

@@ -25,7 +25,7 @@
 
 ## Coding conventions
 
-- Language mix noted in the README: Python (5).
+- The application and its tests use Python; workflow and repository automation use Make and YAML.
 - Prefer dependency-free tests or stdlib checks when legacy packages are unavailable.
 
 ## Testing guidance
