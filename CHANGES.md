@@ -2,6 +2,12 @@
 
 ## 2026-06-10
 
+- Added a reviewed 12-package Python 3.12 `constraints.txt` graph for hosted
+  dependency resolution, explicit credential-free checkout, and exact
+  workflow, cache, documentation, and plan contracts. Version constraints do
+  not authenticate downloaded package artifacts.
+- Upgraded the Flask compatibility range to `>=3.1.3,<3.2`, the patched line
+  for `CVE-2026-27205` / `GHSA-68rp-wp8r-4726`.
 - Added a bounded TomTom response reader that streams at most 1 MiB into JSON
   parsing and closes HTTP responses on success and failure.
 - Added TomTom delay value validation so booleans, fractional values, and

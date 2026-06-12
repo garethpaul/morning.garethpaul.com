@@ -14,6 +14,7 @@ REQUIRED = [
     "README.md",
     "SECURITY.md",
     "VISION.md",
+    "constraints.txt",
     "requirements.txt",
     "settings.py.example",
     "docs/plans/2026-06-08-morning-dashboard-baseline.md",
@@ -29,6 +30,7 @@ REQUIRED = [
     "docs/plans/2026-06-10-hosted-python-validation.md",
     "docs/plans/2026-06-10-tomtom-delay-value-validation.md",
     "docs/plans/2026-06-12-bounded-tomtom-response.md",
+    "docs/plans/2026-06-12-python-dependency-constraints.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -97,8 +99,36 @@ def main() -> int:
     hosted_validation_plan = (ROOT / "docs/plans/2026-06-10-hosted-python-validation.md").read_text(encoding="utf-8", errors="replace")
     tomtom_delay_plan = (ROOT / "docs/plans/2026-06-10-tomtom-delay-value-validation.md").read_text(encoding="utf-8", errors="replace")
     bounded_response_plan = (ROOT / "docs/plans/2026-06-12-bounded-tomtom-response.md").read_text(encoding="utf-8", errors="replace")
+    constraints_plan = (ROOT / "docs/plans/2026-06-12-python-dependency-constraints.md").read_text(encoding="utf-8", errors="replace")
+    constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
+    requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
     tomtom_source = (ROOT / "stuff" / "tomtom.py").read_text(encoding="utf-8", errors="replace")
+
+    expected_requirements = """Flask>=3.1.3,<3.2
+requests>=2.31,<3
+"""
+    expected_constraints = """# Reviewed CI resolution for Python 3.12.
+blinker==1.9.0
+certifi==2026.5.20
+charset-normalizer==3.4.7
+click==8.4.1
+Flask==3.1.3
+idna==3.18
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+requests==2.34.2
+urllib3==2.7.0
+Werkzeug==3.1.8
+"""
+    constrained_install = (
+        "python -m pip install --requirement requirements.txt "
+        "--constraint constraints.txt"
+    )
+    dependency_cache = """          cache-dependency-path: |
+            requirements.txt
+            constraints.txt"""
 
     if "status: completed" not in hosted_validation_plan or "make check" not in hosted_validation_plan:
         failures.append("hosted Python validation plan must be marked completed")
@@ -108,14 +138,46 @@ def main() -> int:
         "runs-on: ubuntu-24.04",
         "timeout-minutes: 10",
         "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+        "persist-credentials: false",
         "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
         'python-version: "3.12"',
-        "cache-dependency-path: requirements.txt",
-        "python -m pip install --requirement requirements.txt",
         "python -m pip check",
         "run: make check",
-    ]):
+    ]) or workflow.count(dependency_cache) != 1 or workflow.count(constrained_install) != 1:
         failures.append("Check workflow must stay pinned, read-only, bounded, and dependency-aware")
+    if workflow.count("uses: actions/checkout@") != 1 or workflow.count("persist-credentials: false") != 1:
+        failures.append("Check workflow must contain one credential-free checkout step")
+    if requirements != expected_requirements:
+        failures.append("requirements.txt must preserve the reviewed direct compatibility ranges")
+    if constraints != expected_constraints:
+        failures.append("constraints.txt must match the reviewed Python 3.12 graph exactly")
+    if not all("constraints.txt" in text for text in [readme, security, changes]):
+        failures.append("docs must describe the reviewed dependency constraints")
+    if "do not authenticate" not in readme.lower() or "not artifact authentication" not in security.lower():
+        failures.append("docs must describe the constraints artifact-authentication boundary")
+    constraints_status = re.findall(r"(?mi)^status:\s*(.+?)\s*$", constraints_plan)
+    constraints_work = markdown_section(constraints_plan, "Work Completed")
+    constraints_verification = markdown_section(constraints_plan, "Verification Completed")
+    if constraints_status != ["completed"] or not constraints_work:
+        failures.append("dependency constraints plan must record one completed status and completed work")
+    if not constraints_verification or re.search(
+        r"(?i)\b(?:pending|todo|tbd|not run|will be recorded)\b",
+        constraints_verification,
+    ):
+        failures.append("dependency constraints plan must record finished verification")
+    elif not all(evidence in constraints_verification for evidence in [
+        "Official PyPI metadata",
+        "GHSA-68rp-wp8r-4726",
+        "Python 3.10, 3.12, and 3.14",
+        "12-package graph",
+        "python -m pip check",
+        "pip-audit -r constraints.txt --no-deps",
+        "no known vulnerabilities",
+        "make check",
+        "hostile mutations",
+        "git diff --check",
+    ]):
+        failures.append("dependency constraints plan must preserve exact local verification evidence")
     test_tomtom = (ROOT / "tests" / "test_tomtom.py").read_text(encoding="utf-8", errors="replace")
 
     for target in ["lint: static-check", "test:", "build: compile", "compile:", "static-check:", "verify: check", "check: clean lint test build"]:

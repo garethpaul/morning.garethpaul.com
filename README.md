@@ -16,7 +16,8 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 - `CHANGES.md` - recent maintenance changes
 - `Makefile` - local static verification entry point
 - `app.py` - Flask app factory and runtime settings loader
-- `requirements.txt` - Flask and requests dependency metadata
+- `requirements.txt` - patched Flask 3.1 and requests 2.x compatibility ranges
+- `constraints.txt` - reviewed exact Python 3.12 dependency graph used by CI
 - `SECURITY.md` - security reporting and disclosure guidance
 - `scripts/check-baseline.py` - static commute dashboard baseline checks
 - `static` - source or example code
@@ -28,7 +29,7 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 Additional scan context:
 
 - Source directories: static, stuff, templates
-- Dependency and build manifests: requirements.txt
+- Dependency and build manifests: requirements.txt, constraints.txt
 - Entry points or build surfaces: `make lint`, `make test`, `make build`, `make check`, app.py
 - Test-looking files: tests/test_app.py, tests/test_tomtom.py
 
@@ -38,14 +39,14 @@ Additional scan context:
 
 - Git
 - Python 3.10 or newer
-- Flask and requests from `requirements.txt`
+- Flask and requests from `requirements.txt` and `constraints.txt`
 
 ### Setup
 
 ```bash
 git clone https://github.com/garethpaul/morning.garethpaul.com.git
 cd morning.garethpaul.com
-python3 -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt -c constraints.txt
 make lint
 make test
 make build
@@ -71,10 +72,15 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   clean/lint/test/build gate.
 - Check target gate order keeps the full local gate delegated through the same
   named lint, test, and build targets used before pushing.
-- Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt`, runs
+- Pinned, credential-free `ubuntu-24.04` GitHub Actions installs
+  `requirements.txt` through the reviewed versions in `constraints.txt`, runs
   `pip check`, and executes `make check` on Python 3.12. Hosted tests use
   fixtures and injected HTTP calls without a TomTom key, personal coordinates,
   local settings, or live route requests.
+- The constraints freeze the reviewed direct and transitive versions, but they
+  do not authenticate downloaded package artifacts with hashes.
+- Flask stays on `>=3.1.3,<3.2` because 3.1.3 is the first release patched for
+  `CVE-2026-27205` / `GHSA-68rp-wp8r-4726`.
 - `python3 -m unittest discover -s tests` verifies configuration, Flask routes, TomTom URL construction, response parsing, and injected HTTP behavior without live TomTom calls.
 - Offline tests also cover repository-relative Flask assets so `/static/styles.css`
   remains available when `create_app` runs from another working directory.

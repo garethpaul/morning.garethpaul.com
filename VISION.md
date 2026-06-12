@@ -26,6 +26,9 @@ TomTom delay value validation keeps parsed route delays on a non-negative
 integer contract.
 The bounded TomTom response keeps decompressed content entering JSON parsing at
 or below 1 MiB and closes the HTTP response deterministically.
+Reviewed Python 3.12 dependency constraints keep hosted resolution stable while
+using the patched Flask 3.1 line and preserving the requests 2.x compatibility
+range. They do not authenticate downloaded artifacts with hashes.
 
 The current focus is:
 
@@ -53,7 +56,8 @@ Next priorities:
 
 - Add weather or news inputs behind the same fixture-first testing approach
 - Keep pinned, read-only Python 3.12 hosted validation covering dependency
-  installation, `pip check`, and offline route tests without TomTom access
+  installation through the reviewed constraints graph, `pip check`, and
+  offline route tests without TomTom access
 - Document deployment environment variables for any hosted deployment
 
 Contribution rules:

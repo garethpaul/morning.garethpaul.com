@@ -28,7 +28,11 @@ Helpful reports include:
 - Review found network clients, sockets, web APIs, or service endpoints; changes in those areas should receive security-focused review before merge.
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
-- Dependency manifest detected: requirements.txt. Run `make lint`, `make test`, `make build`, and `make check` after changing Python sources, TomTom route handling, local settings, templates, dependencies, or security docs.
+- Dependency manifests detected: `requirements.txt` and `constraints.txt`.
+  Preserve the direct compatibility ranges and reviewed exact CI graph. Run
+  `make lint`, `make test`, `make build`, and `make check` after changing
+  Python sources, TomTom route handling, local settings, templates,
+  dependencies, or security docs.
 - The pinned Linux workflow installs declared dependencies and runs offline
   tests without TomTom credentials, personal coordinates, local settings, or
   live route requests.
@@ -58,6 +62,13 @@ For this commute dashboard, reports should also state whether home/work coordina
 ## Dependency and Supply Chain Security
 
 Dependency updates should come from trusted package managers and should keep manifests in sync when they exist. Do not commit credentials, private keys, tokens, generated secrets, route API keys, home/work coordinates, personal commute details, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
+
+GitHub Actions applies `constraints.txt` to freeze the reviewed Python 3.12
+resolution. This reduces resolver drift but is not artifact authentication;
+the constraints file does not contain package hashes.
+Flask is restricted to `>=3.1.3,<3.2`; GitHub's reviewed
+`GHSA-68rp-wp8r-4726` advisory identifies 3.1.3 as the first release patched
+for the session cache `Vary: Cookie` issue tracked as `CVE-2026-27205`.
 
 ## Safe Research Guidelines
 
