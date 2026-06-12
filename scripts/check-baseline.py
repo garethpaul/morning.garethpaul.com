@@ -39,6 +39,14 @@ FORBIDDEN = [
 ]
 
 
+def markdown_section(text: str, heading: str) -> str:
+    match = re.search(
+        rf"(?ms)^## {re.escape(heading)}\s*$\n(.*?)(?=^## |\Z)",
+        text,
+    )
+    return match.group(1).strip() if match else ""
+
+
 def main() -> int:
     failures = []
     for relative_path in REQUIRED:
@@ -206,8 +214,35 @@ def main() -> int:
         failures.append("docs must mention TomTom delay value validation")
     if "tomtom delay value validation" not in changes.lower():
         failures.append("CHANGES must record TomTom delay value validation")
-    if "status: completed" not in tomtom_delay_plan or "non-negative integer" not in tomtom_delay_plan:
-        failures.append("TomTom delay value validation plan must be completed and document the contract")
+    tomtom_delay_status = re.findall(r"(?mi)^status:\s*(.+?)\s*$", tomtom_delay_plan)
+    tomtom_delay_work = markdown_section(tomtom_delay_plan, "Work Completed")
+    tomtom_delay_verification = markdown_section(
+        tomtom_delay_plan, "Verification Completed"
+    )
+    if tomtom_delay_status != ["completed"] or not tomtom_delay_work:
+        failures.append("TomTom delay value validation plan must record one completed status and completed work")
+    if not tomtom_delay_verification or re.search(
+        r"(?i)\b(?:pending|todo|tbd|not run)\b", tomtom_delay_verification
+    ):
+        failures.append("TomTom delay value validation plan must record completed verification")
+    for evidence in [
+        "make check",
+        "make lint",
+        "make test",
+        "make build",
+        "python3 -m py_compile scripts/check-baseline.py",
+        "git diff --check",
+        "27397385338",
+        "27397386885",
+        "bffbd99b97eb8868ee9e618ecf4be2132ed33a64",
+        "isinstance(value, bool)",
+        "normalized.isascii()",
+        "if delay < 0",
+        "test_parse_delay_seconds_accepts_non_negative_integers",
+        "test_parse_delay_seconds_rejects_invalid_delay_values",
+    ]:
+        if evidence not in tomtom_delay_verification:
+            failures.append(f"TomTom delay verification must record {evidence}")
     if not all(value in tomtom_source for value in [
         "MAXIMUM_TOMTOM_RESPONSE_BYTES = 1024 * 1024",
         "stream=True",
