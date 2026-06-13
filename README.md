@@ -70,6 +70,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make lint` runs `scripts/check-baseline.py`, `make test` runs offline unit
   tests, `make build` compiles Python files, and `make check` runs the full
   clean/lint/test/build gate.
+- The Make gates are location-independent. From another directory, pass the
+  checkout's Makefile by absolute path, such as
+  `make -f /path/to/morning.garethpaul.com/Makefile check`.
 - Check target gate order keeps the full local gate delegated through the same
   named lint, test, and build targets used before pushing.
 - Pinned, credential-free `ubuntu-24.04` GitHub Actions installs
@@ -134,6 +137,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Run `make lint`, `make test`, `make build`, and `make check` before pushing
   Python, TomTom, settings, template, dependency, or security documentation
   changes.
+- Use an absolute Makefile path when running those gates outside the checkout.
 - See `docs/plans/2026-06-08-morning-dashboard-baseline.md` for the current completed baseline plan.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local gate alias
   baseline.

@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Made tests, compilation, static checks, verification, and generated-file
+  cleanup resolve from the checkout for absolute Makefile invocations.
 - Added TomTom transport error redaction so timeout and HTTP status failures do
   not retain the API-key-bearing request URL.
 

@@ -7,6 +7,31 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
+EXPECTED_MAKEFILE = """ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+
+.PHONY: build check clean compile lint static-check test verify
+
+check: clean lint test build
+
+lint: static-check
+
+test:
+\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
+
+build: compile
+
+compile:
+\tcd "$(ROOT)" && python3 -c "from pathlib import Path; [compile(path.read_text(), str(path), 'exec') for path in [Path('app.py'), Path('stuff/tomtom.py'), *Path('tests').glob('*.py')]]"
+
+static-check:
+\tpython3 "$(ROOT)/scripts/check-baseline.py"
+
+verify: check
+
+clean:
+\tfind "$(ROOT)" -type f \\( -name '*.pyc' -o -name '*.pyo' \\) -delete
+\tfind "$(ROOT)" -type d -name '__pycache__' -prune -exec rm -rf {} +
+"""
 REQUIRED = [
     ".gitignore",
     ".github/workflows/check.yml",
@@ -32,6 +57,7 @@ REQUIRED = [
     "docs/plans/2026-06-12-bounded-tomtom-response.md",
     "docs/plans/2026-06-12-python-dependency-constraints.md",
     "docs/plans/2026-06-13-tomtom-transport-error-redaction.md",
+    "docs/plans/2026-06-13-location-independent-make.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -102,6 +128,7 @@ def main() -> int:
     bounded_response_plan = (ROOT / "docs/plans/2026-06-12-bounded-tomtom-response.md").read_text(encoding="utf-8", errors="replace")
     constraints_plan = (ROOT / "docs/plans/2026-06-12-python-dependency-constraints.md").read_text(encoding="utf-8", errors="replace")
     transport_error_plan = (ROOT / "docs/plans/2026-06-13-tomtom-transport-error-redaction.md").read_text(encoding="utf-8", errors="replace")
+    location_independent_make_plan = (ROOT / "docs/plans/2026-06-13-location-independent-make.md").read_text(encoding="utf-8", errors="replace")
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
@@ -188,9 +215,16 @@ Werkzeug==3.1.8
         failures.append("dependency constraints plan must preserve exact local verification evidence")
     test_tomtom = (ROOT / "tests" / "test_tomtom.py").read_text(encoding="utf-8", errors="replace")
 
-    for target in ["lint: static-check", "test:", "build: compile", "compile:", "static-check:", "verify: check", "check: clean lint test build"]:
-        if target not in makefile:
-            failures.append(f"Makefile must expose target: {target}")
+    if makefile != EXPECTED_MAKEFILE:
+        failures.append("Makefile must exactly preserve rooted lint, test, build, check, verify, and clean gates")
+    if "make -f /path/to/morning.garethpaul.com/Makefile check" not in readme:
+        failures.append("README must document location-independent Makefile invocation")
+    if not all(value in location_independent_make_plan for value in [
+        "status: completed",
+        "root and external-directory",
+        "eight isolated hostile mutations",
+    ]):
+        failures.append("location-independent Make plan must record completed root, external, and mutation verification")
 
     if "_positive_float" not in app_source or "must be greater than zero" not in app_source:
         failures.append("app settings must reject non-positive commute numeric values")
