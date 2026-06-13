@@ -88,6 +88,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   responses fail with stable parser errors.
 - The bounded TomTom response reader streams at most 1 MiB of decompressed
   content into JSON parsing and closes responses on success or failure.
+- TomTom transport error redaction converts Requests transport and HTTP status
+  failures to a stable message without retaining the API-key-bearing URL.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -113,6 +115,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - Review changes touching network requests, sockets, or service endpoints; examples from the scan include app.py, stuff/tomtom.py, templates/index.html.
 - Keep TomTom requests on HTTPS and do not enable Flask debug mode in hosted deployments.
+- Keep TomTom transport error redaction in place so request URLs containing the
+  API key do not reach Flask or process-supervisor exception logs.
 - Keep TomTom API key placeholder validation in place so copied templates fail before live route requests.
 - Keep TomTom JSON response validation in place so malformed route responses
   fail before delay parsing.

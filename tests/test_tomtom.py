@@ -2,6 +2,8 @@ from types import SimpleNamespace
 import json
 import unittest
 
+import requests
+
 from stuff.tomtom import parse_delay_seconds, route_url, traffic_delay_seconds
 
 
@@ -87,13 +89,34 @@ class TomTomTests(unittest.TestCase):
         self.assertTrue(response.closed)
 
     def test_traffic_delay_seconds_closes_response_when_status_check_fails(self):
-        settings = SimpleNamespace(home_pos="1,2", work_pos="3,4", tomtom_api_key="key")
-        response = FakeResponse(b"", status_error=RuntimeError("status failed"))
+        secret = "private-tomtom-key"
+        settings = SimpleNamespace(home_pos="1,2", work_pos="3,4", tomtom_api_key=secret)
+        response = FakeResponse(
+            b"",
+            status_error=requests.HTTPError(f"status failed for https://routes.tomtom.com/{secret}"),
+        )
 
-        with self.assertRaisesRegex(RuntimeError, "status failed"):
+        with self.assertRaisesRegex(RuntimeError, "^TomTom request failed$") as raised:
             traffic_delay_seconds("work", settings, http_get=lambda *args, **kwargs: response)
 
         self.assertTrue(response.closed)
+        self.assertIsNone(raised.exception.__cause__)
+        self.assertIsNone(raised.exception.__context__)
+        self.assertNotIn(secret, str(raised.exception))
+
+    def test_traffic_delay_seconds_redacts_transport_error_url(self):
+        secret = "private-tomtom-key"
+        settings = SimpleNamespace(home_pos="1,2", work_pos="3,4", tomtom_api_key=secret)
+
+        def fail_request(url, **kwargs):
+            raise requests.Timeout(f"timed out requesting {url}")
+
+        with self.assertRaisesRegex(RuntimeError, "^TomTom request failed$") as raised:
+            traffic_delay_seconds("work", settings, http_get=fail_request)
+
+        self.assertIsNone(raised.exception.__cause__)
+        self.assertIsNone(raised.exception.__context__)
+        self.assertNotIn(secret, str(raised.exception))
 
 
 if __name__ == "__main__":

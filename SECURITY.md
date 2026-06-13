@@ -47,6 +47,8 @@ Helpful reports include:
   negative delays before route data reaches the dashboard.
 - The bounded TomTom response should reject more than 1 MiB of decompressed
   parser input and close HTTP responses without exposing their content.
+- TomTom transport error redaction should replace Requests transport and HTTP
+  status exceptions before API-key-bearing route URLs can reach logs.
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
 - Sanitized numeric setting errors should identify invalid fields without echoing
   raw local configuration values.

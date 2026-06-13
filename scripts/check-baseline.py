@@ -31,6 +31,7 @@ REQUIRED = [
     "docs/plans/2026-06-10-tomtom-delay-value-validation.md",
     "docs/plans/2026-06-12-bounded-tomtom-response.md",
     "docs/plans/2026-06-12-python-dependency-constraints.md",
+    "docs/plans/2026-06-13-tomtom-transport-error-redaction.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -100,6 +101,7 @@ def main() -> int:
     tomtom_delay_plan = (ROOT / "docs/plans/2026-06-10-tomtom-delay-value-validation.md").read_text(encoding="utf-8", errors="replace")
     bounded_response_plan = (ROOT / "docs/plans/2026-06-12-bounded-tomtom-response.md").read_text(encoding="utf-8", errors="replace")
     constraints_plan = (ROOT / "docs/plans/2026-06-12-python-dependency-constraints.md").read_text(encoding="utf-8", errors="replace")
+    transport_error_plan = (ROOT / "docs/plans/2026-06-13-tomtom-transport-error-redaction.md").read_text(encoding="utf-8", errors="replace")
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
@@ -319,7 +321,7 @@ Werkzeug==3.1.8
         "body.extend(chunk[:remaining])",
         "if len(body) > MAXIMUM_TOMTOM_RESPONSE_BYTES",
         "TomTom response exceeds 1 MiB limit",
-        "finally:\n        response.close()",
+        "finally:\n        if response is not None:\n            response.close()",
     ]):
         failures.append("TomTom responses must be streamed, bounded, and closed before parsing")
     if not all(value in test_tomtom for value in [
@@ -332,6 +334,24 @@ Werkzeug==3.1.8
         failures.append("docs must describe the bounded TomTom response")
     if "status: completed" not in bounded_response_plan or "hostile mutations" not in bounded_response_plan:
         failures.append("bounded TomTom response plan must record completed verification")
+    if not all(value in tomtom_source for value in [
+        "except requests.RequestException:",
+        "request_failed = True",
+        'raise RuntimeError("TomTom request failed")',
+    ]):
+        failures.append("TomTom request failures must use a stable credential-redacted error boundary")
+    if not all(value in test_tomtom for value in [
+        "test_traffic_delay_seconds_redacts_transport_error_url",
+        "requests.Timeout",
+        "requests.HTTPError",
+        "self.assertIsNone(raised.exception.__context__)",
+        "self.assertNotIn(secret, str(raised.exception))",
+    ]):
+        failures.append("tests must prove TomTom transport errors do not retain or expose the API key")
+    if not all("TomTom transport error redaction" in text for text in [readme, vision, security, changes]):
+        failures.append("docs must describe TomTom transport error redaction")
+    if "status: completed" not in transport_error_plan or "hostile mutations" not in transport_error_plan:
+        failures.append("TomTom transport error redaction plan must record completed verification")
 
     if failures:
         for failure in failures:

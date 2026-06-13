@@ -43,6 +43,7 @@ Priority:
 - Keep TomTom JSON response validation before route delay parsing
 - Keep TomTom delay value validation before rendering route delay data
 - Keep the bounded TomTom response before JSON parsing
+- Keep TomTom transport error redaction before request failures reach logs
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
 - Keep sanitized numeric setting errors from echoing raw local values
 - Keep lint, test, build, and check gates mapped to the offline baseline

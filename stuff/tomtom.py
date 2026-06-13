@@ -39,20 +39,28 @@ def route_url(where: str, settings) -> str:
 
 
 def traffic_delay_seconds(where: str, settings, http_get: Callable = requests.get) -> int:
-    response = http_get(
-        route_url(where, settings),
-        headers={
-            "User-Agent": USER_AGENT,
-            "Referer": "https://routes.tomtom.com/",
-        },
-        timeout=10,
-        stream=True,
-    )
+    response = None
+    request_failed = False
     try:
+        response = http_get(
+            route_url(where, settings),
+            headers={
+                "User-Agent": USER_AGENT,
+                "Referer": "https://routes.tomtom.com/",
+            },
+            timeout=10,
+            stream=True,
+        )
         response.raise_for_status()
         return parse_delay_seconds(read_tomtom_response(response))
+    except requests.RequestException:
+        request_failed = True
     finally:
-        response.close()
+        if response is not None:
+            response.close()
+
+    if request_failed:
+        raise RuntimeError("TomTom request failed")
 
 
 def read_tomtom_response(response) -> bytes:

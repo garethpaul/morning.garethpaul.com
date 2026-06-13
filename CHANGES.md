@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-13
+
+- Added TomTom transport error redaction so timeout and HTTP status failures do
+  not retain the API-key-bearing request URL.
+
 ## 2026-06-10
 
 - Added a reviewed 12-package Python 3.12 `constraints.txt` graph for hosted
