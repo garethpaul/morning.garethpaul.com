@@ -58,6 +58,7 @@ REQUIRED = [
     "docs/plans/2026-06-12-python-dependency-constraints.md",
     "docs/plans/2026-06-13-tomtom-transport-error-redaction.md",
     "docs/plans/2026-06-13-location-independent-make.md",
+    "docs/plans/2026-06-14-tomtom-parser-error-redaction.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -129,6 +130,7 @@ def main() -> int:
     constraints_plan = (ROOT / "docs/plans/2026-06-12-python-dependency-constraints.md").read_text(encoding="utf-8", errors="replace")
     transport_error_plan = (ROOT / "docs/plans/2026-06-13-tomtom-transport-error-redaction.md").read_text(encoding="utf-8", errors="replace")
     location_independent_make_plan = (ROOT / "docs/plans/2026-06-13-location-independent-make.md").read_text(encoding="utf-8", errors="replace")
+    parser_error_plan = (ROOT / "docs/plans/2026-06-14-tomtom-parser-error-redaction.md").read_text(encoding="utf-8", errors="replace")
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
@@ -386,6 +388,25 @@ Werkzeug==3.1.8
         failures.append("docs must describe TomTom transport error redaction")
     if "status: completed" not in transport_error_plan or "hostile mutations" not in transport_error_plan:
         failures.append("TomTom transport error redaction plan must record completed verification")
+    if not all(value in tomtom_source for value in [
+        "invalid_json = False",
+        "except json.JSONDecodeError:",
+        "invalid_json = True",
+        "if invalid_json:",
+        'raise ValueError("TomTom response must be valid JSON")',
+    ]):
+        failures.append("TomTom parser failures must use a response-body-redacted error boundary")
+    if not all(value in test_tomtom for value in [
+        "test_parse_delay_seconds_redacts_invalid_json_body",
+        "self.assertIsNone(raised.exception.__cause__)",
+        "self.assertIsNone(raised.exception.__context__)",
+        "self.assertNotIn(secret, str(raised.exception))",
+    ]):
+        failures.append("tests must prove malformed TomTom response bodies are not retained by parser errors")
+    if not all("TomTom parser error redaction" in text for text in [readme, vision, security, changes]):
+        failures.append("docs must describe TomTom parser error redaction")
+    if "status: completed" not in parser_error_plan or "hostile mutations" not in parser_error_plan:
+        failures.append("TomTom parser error redaction plan must record completed verification")
 
     if failures:
         for failure in failures:

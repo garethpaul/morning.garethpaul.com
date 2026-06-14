@@ -49,6 +49,8 @@ Helpful reports include:
   parser input and close HTTP responses without exposing their content.
 - TomTom transport error redaction should replace Requests transport and HTTP
   status exceptions before API-key-bearing route URLs can reach logs.
+- TomTom parser error redaction should raise malformed-JSON validation failures
+  without retaining the provider body in a decoder exception.
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
 - Sanitized numeric setting errors should identify invalid fields without echoing
   raw local configuration values.

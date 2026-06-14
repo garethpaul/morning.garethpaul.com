@@ -77,10 +77,13 @@ def read_tomtom_response(response) -> bytes:
 
 def parse_delay_seconds(payload) -> int:
     if isinstance(payload, (str, bytes, bytearray)):
+        invalid_json = False
         try:
             payload = json.loads(payload)
-        except json.JSONDecodeError as error:
-            raise ValueError("TomTom response must be valid JSON") from error
+        except json.JSONDecodeError:
+            invalid_json = True
+        if invalid_json:
+            raise ValueError("TomTom response must be valid JSON")
     try:
         value = payload["route"]["summary"]["totalDelaySeconds"]
     except (KeyError, TypeError) as error:

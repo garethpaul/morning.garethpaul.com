@@ -49,6 +49,16 @@ class TomTomTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "TomTom response must be valid JSON"):
             parse_delay_seconds("<html>not route json</html>")
 
+    def test_parse_delay_seconds_redacts_invalid_json_body(self):
+        secret = "private-provider-body-token"
+
+        with self.assertRaisesRegex(ValueError, "^TomTom response must be valid JSON$") as raised:
+            parse_delay_seconds(f"<html>{secret}</html>")
+
+        self.assertIsNone(raised.exception.__cause__)
+        self.assertIsNone(raised.exception.__context__)
+        self.assertNotIn(secret, str(raised.exception))
+
     def test_parse_delay_seconds_accepts_non_negative_integers(self):
         for delay in (0, 42, " 42 "):
             with self.subTest(delay=delay):

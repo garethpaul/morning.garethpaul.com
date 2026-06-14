@@ -26,6 +26,8 @@ TomTom delay value validation keeps parsed route delays on a non-negative
 integer contract.
 The bounded TomTom response keeps decompressed content entering JSON parsing at
 or below 1 MiB and closes the HTTP response deterministically.
+TomTom parser error redaction keeps malformed provider response bodies out of
+the exception chain exposed to application diagnostics.
 Reviewed Python 3.12 dependency constraints keep hosted resolution stable while
 using the patched Flask 3.1 line and preserving the requests 2.x compatibility
 range. They do not authenticate downloaded artifacts with hashes.
@@ -44,6 +46,7 @@ Priority:
 - Keep TomTom delay value validation before rendering route delay data
 - Keep the bounded TomTom response before JSON parsing
 - Keep TomTom transport error redaction before request failures reach logs
+- Keep TomTom parser error redaction around malformed JSON validation
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
 - Keep sanitized numeric setting errors from echoing raw local values
 - Keep lint, test, build, and check gates mapped to the offline baseline

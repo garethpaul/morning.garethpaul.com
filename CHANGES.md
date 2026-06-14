@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-14
+
+- Added TomTom parser error redaction so malformed provider response bodies are
+  not retained through chained JSON decoder exceptions.
+
 ## 2026-06-13
 
 - Made tests, compilation, static checks, verification, and generated-file
