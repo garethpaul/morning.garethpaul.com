@@ -59,6 +59,17 @@ class TomTomTests(unittest.TestCase):
         self.assertIsNone(raised.exception.__context__)
         self.assertNotIn(secret, str(raised.exception))
 
+    def test_parse_delay_seconds_redacts_invalid_utf8_body(self):
+        secret = "private-provider-byte-token"
+        payload = b'{"route":"' + secret.encode() + b'\xff"}'
+
+        with self.assertRaisesRegex(ValueError, "^TomTom response must be valid JSON$") as raised:
+            parse_delay_seconds(payload)
+
+        self.assertIsNone(raised.exception.__cause__)
+        self.assertIsNone(raised.exception.__context__)
+        self.assertNotIn(secret, str(raised.exception))
+
     def test_parse_delay_seconds_accepts_non_negative_integers(self):
         for delay in (0, 42, " 42 "):
             with self.subTest(delay=delay):

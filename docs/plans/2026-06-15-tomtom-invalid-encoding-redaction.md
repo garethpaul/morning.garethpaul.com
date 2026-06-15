@@ -1,6 +1,6 @@
 # TomTom Invalid Encoding Redaction
 
-status: planned
+status: completed
 
 ## Context
 
@@ -36,8 +36,23 @@ credential- and body-redacted parser boundary.
 
 ## Work Completed
 
-Pending implementation.
+- Included `UnicodeDecodeError` in the existing two-phase parser failure
+  boundary so invalid bytes map to the stable JSON validation message.
+- Preserved a cause- and context-free raise outside the decoder handler so raw
+  response bytes are not retained by application diagnostics.
+- Added focused byte-payload coverage and synchronized static and documentation
+  contracts.
 
 ## Verification Completed
 
-Pending implementation and verification.
+- The focused `test_tomtom.py` discovery run passed all 11 tests.
+- All four Make gates passed from the repository.
+- The external-directory Make gate passed through the absolute Makefile path.
+- Python compilation passed with cache output redirected outside the checkout.
+- Six isolated hostile mutations were rejected across the invalid-encoding
+  catch, stable message, cause/context boundary, focused test, documentation,
+  and plan evidence.
+- `git diff --check`, generated-artifact inspection, dependency-file review,
+  conflict-marker review, secret scan, and changed-line credential-pattern
+  review passed.
+- No TomTom endpoint or external service was contacted.

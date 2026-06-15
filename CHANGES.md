@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-15
+
+- Added TomTom invalid encoding redaction so invalid UTF-8 provider bytes use
+  the same stable body-free parser error as malformed JSON.
+
 ## 2026-06-14
 
 - Added TomTom parser error redaction so malformed provider response bodies are

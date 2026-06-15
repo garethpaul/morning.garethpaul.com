@@ -95,6 +95,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   failures to a stable message without retaining the API-key-bearing URL.
 - TomTom parser error redaction raises malformed-JSON failures outside the
   decoder handler so provider response bodies are not retained in exceptions.
+- TomTom invalid encoding redaction maps invalid UTF-8 response bytes to the
+  same stable parser error without retaining the body in exception context.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 

@@ -80,7 +80,7 @@ def parse_delay_seconds(payload) -> int:
         invalid_json = False
         try:
             payload = json.loads(payload)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, UnicodeDecodeError):
             invalid_json = True
         if invalid_json:
             raise ValueError("TomTom response must be valid JSON")

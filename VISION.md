@@ -28,6 +28,8 @@ The bounded TomTom response keeps decompressed content entering JSON parsing at
 or below 1 MiB and closes the HTTP response deterministically.
 TomTom parser error redaction keeps malformed provider response bodies out of
 the exception chain exposed to application diagnostics.
+TomTom invalid encoding redaction keeps raw invalid UTF-8 provider bytes out of
+that same exception chain.
 Reviewed Python 3.12 dependency constraints keep hosted resolution stable while
 using the patched Flask 3.1 line and preserving the requests 2.x compatibility
 range. They do not authenticate downloaded artifacts with hashes.
