@@ -51,6 +51,7 @@ Priority:
 - Keep TomTom parser error redaction around malformed JSON validation
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
 - Keep finite positive commute settings across loading and direct cost calculation
+- Keep settings import error preservation for failures inside local configuration
 - Keep sanitized numeric setting errors from echoing raw local values
 - Keep lint, test, build, and check gates mapped to the offline baseline
 - Keep check target gate order delegated through lint, test, and build

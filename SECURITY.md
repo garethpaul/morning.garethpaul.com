@@ -56,6 +56,8 @@ Helpful reports include:
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
 - Finite positive commute settings should reject `NaN` and infinity during
   loading and direct cost calculation before output reaches the dashboard.
+- Settings import error preservation should suppress only an absent optional
+  `settings.py`; nested dependency failures must retain their original diagnostic.
 - Sanitized numeric setting errors should identify invalid fields without echoing
   raw local configuration values.
 - Repository-relative Flask assets should keep checked-in templates and static

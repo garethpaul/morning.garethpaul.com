@@ -2,6 +2,8 @@
 
 ## 2026-06-16
 
+- Added settings import error preservation so a missing dependency inside an
+  existing local settings module is no longer misreported as absent configuration.
 - Added finite positive commute settings validation so `NaN` and infinity fail
   during configuration loading and direct fuel-cost calculation.
 

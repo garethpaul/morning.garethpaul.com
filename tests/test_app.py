@@ -4,8 +4,9 @@ from types import SimpleNamespace
 import os
 import tempfile
 import unittest
+from unittest import mock
 
-from app import MorningSettings, create_app, load_settings
+from app import MorningSettings, _load_optional_settings_module, create_app, load_settings
 
 
 class AppTests(unittest.TestCase):
@@ -55,6 +56,25 @@ class AppTests(unittest.TestCase):
         settings = load_settings({}, settings_module=module)
 
         self.assertEqual(settings.cost_per_day, 4.0)
+
+    def test_optional_settings_module_allows_top_level_absence(self):
+        missing_settings = ModuleNotFoundError("No module named 'settings'", name="settings")
+
+        with mock.patch("app.importlib.import_module", side_effect=missing_settings):
+            self.assertIsNone(_load_optional_settings_module())
+
+    def test_optional_settings_module_preserves_nested_import_failure(self):
+        missing_dependency = ModuleNotFoundError(
+            "No module named 'private_settings_dependency'",
+            name="private_settings_dependency",
+        )
+
+        with mock.patch("app.importlib.import_module", side_effect=missing_dependency):
+            with self.assertRaises(ModuleNotFoundError) as raised:
+                _load_optional_settings_module()
+
+        self.assertIs(raised.exception, missing_dependency)
+        self.assertEqual(raised.exception.name, "private_settings_dependency")
 
     def test_load_settings_rejects_non_positive_numeric_settings(self):
         base_env = {

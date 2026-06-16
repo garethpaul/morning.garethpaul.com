@@ -137,6 +137,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Keep positive numeric commute settings validation in place so the dashboard does not render impossible fuel-cost output.
 - Keep finite positive commute settings validation in both loading and direct
   cost calculation so non-finite output cannot reach the dashboard.
+- Keep settings import error preservation so only an absent optional
+  `settings.py` is ignored and missing dependencies inside it remain visible.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include stuff/tomtom.py.
 - Tests should use fixture responses and injected HTTP clients instead of live route calls.
 - Keep repository-relative Flask assets in place so changing the process working

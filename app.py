@@ -107,7 +107,9 @@ def load_settings(env: Mapping[str, str] = os.environ, settings_module: Optional
 def _load_optional_settings_module():
     try:
         return importlib.import_module("settings")
-    except ModuleNotFoundError:
+    except ModuleNotFoundError as error:
+        if error.name != "settings":
+            raise
         return None
 
 

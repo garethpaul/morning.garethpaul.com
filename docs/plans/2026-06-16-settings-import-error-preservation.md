@@ -1,6 +1,6 @@
 # Settings Import Error Preservation
 
-Status: planned
+Status: completed
 
 ## Priority
 
@@ -93,3 +93,15 @@ exception translation.
 - Only absence of the optional top-level `settings` module is suppressed.
 - Nested module import failures remain visible with their original identity.
 - Existing configuration behavior and all offline tests remain green.
+
+## Verification Completed
+
+- The focused import-boundary regressions and all 24 offline tests passed.
+- All four Make gates passed from the repository root, and the absolute
+  Makefile `check` gate passed from an external directory.
+- Seven isolated hostile mutations were rejected across selective exception
+  handling, top-level absence, nested failure propagation, executable coverage,
+  guidance, plan status, and plan evidence.
+- Application, test, and checker compilation plus `git diff --check` passed.
+- Exact intended-path, generated-artifact, credential-pattern, conflict-marker,
+  binary, large-file, mode, and whitespace audits passed.

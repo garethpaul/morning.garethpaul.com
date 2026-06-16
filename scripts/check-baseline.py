@@ -61,6 +61,7 @@ REQUIRED = [
     "docs/plans/2026-06-14-tomtom-parser-error-redaction.md",
     "docs/plans/2026-06-15-tomtom-invalid-encoding-redaction.md",
     "docs/plans/2026-06-16-finite-commute-settings.md",
+    "docs/plans/2026-06-16-settings-import-error-preservation.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -135,6 +136,7 @@ def main() -> int:
     parser_error_plan = (ROOT / "docs/plans/2026-06-14-tomtom-parser-error-redaction.md").read_text(encoding="utf-8", errors="replace")
     invalid_encoding_plan = (ROOT / "docs/plans/2026-06-15-tomtom-invalid-encoding-redaction.md").read_text(encoding="utf-8", errors="replace")
     finite_settings_plan = (ROOT / "docs/plans/2026-06-16-finite-commute-settings.md").read_text(encoding="utf-8", errors="replace")
+    settings_import_plan = (ROOT / "docs/plans/2026-06-16-settings-import-error-preservation.md").read_text(encoding="utf-8", errors="replace")
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
@@ -273,6 +275,39 @@ Werkzeug==3.1.8
         markdown_section(finite_settings_plan, "Verification Completed"),
     ):
         failures.append("finite commute settings plan must record completed verification")
+    optional_settings_start = app_source.find("def _load_optional_settings_module():")
+    optional_settings_end = app_source.find("\n\ndef _module_value", optional_settings_start)
+    optional_settings_source = app_source[optional_settings_start:optional_settings_end]
+    if not all(value in optional_settings_source for value in [
+        'return importlib.import_module("settings")',
+        "except ModuleNotFoundError as error:",
+        'if error.name != "settings":',
+        "raise",
+        "return None",
+    ]):
+        failures.append("optional settings import must preserve nested ModuleNotFoundError failures")
+    if not all(value in test_app for value in [
+        "test_optional_settings_module_allows_top_level_absence",
+        "test_optional_settings_module_preserves_nested_import_failure",
+        'name="settings"',
+        'name="private_settings_dependency"',
+        "self.assertIs(raised.exception, missing_dependency)",
+    ]):
+        failures.append("tests must distinguish absent settings from nested import failures")
+    if not all("settings import error preservation" in text.lower() for text in [readme, vision, security, changes]):
+        failures.append("docs must describe settings import error preservation")
+    if not all(value in settings_import_plan for value in [
+        "Status: completed",
+        "all 24 offline tests",
+        "All four Make gates passed",
+        "external directory",
+        "Seven isolated hostile mutations were rejected",
+        "git diff --check",
+    ]) or re.search(
+        r"(?i)\b(?:pending|todo|tbd|not run)\b",
+        markdown_section(settings_import_plan, "Verification Completed"),
+    ):
+        failures.append("settings import error preservation plan must record completed verification")
     if "raise ValueError(f\"{name} must be numeric\") from None" not in app_source:
         failures.append("numeric commute settings must not expose raw conversion values")
     if "test_load_settings_rejects_non_numeric_settings_without_raw_cause" not in test_app:
