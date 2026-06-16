@@ -1,6 +1,6 @@
 # Finite Commute Settings
 
-Status: planned
+Status: completed
 
 ## Priority
 
@@ -59,3 +59,19 @@ the same gap in `cost_per_day`.
   sanitized field-specific error used for other invalid positive values.
 - Direct cost calculation rejects non-finite inputs before producing output.
 - Ordinary finite positive commute costs remain unchanged.
+
+## Verification Completed
+
+- The focused finite-settings tests passed for loaded and directly constructed
+  values, and the complete suite passed all 22 offline tests.
+- All four Make gates passed from the repository root.
+- The absolute Makefile `check` gate passed from an external directory.
+- Application, checker, and test sources compiled with bytecode redirected
+  outside the repository.
+- Eight isolated hostile mutations were rejected across finite predicates,
+  loaded-setting validation, direct cost calculation, executable test
+  contracts, maintained guidance, changelog evidence, and plan completion.
+- Exact diff, generated-artifact, credential-pattern, conflict-marker, binary,
+  large-file, and whitespace audits passed.
+- The ambient Python 3.12 environment emitted the existing Werkzeug AST
+  deprecation warnings; the pinned hosted dependency graph remains canonical.

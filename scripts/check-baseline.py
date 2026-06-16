@@ -60,6 +60,7 @@ REQUIRED = [
     "docs/plans/2026-06-13-location-independent-make.md",
     "docs/plans/2026-06-14-tomtom-parser-error-redaction.md",
     "docs/plans/2026-06-15-tomtom-invalid-encoding-redaction.md",
+    "docs/plans/2026-06-16-finite-commute-settings.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -133,6 +134,7 @@ def main() -> int:
     location_independent_make_plan = (ROOT / "docs/plans/2026-06-13-location-independent-make.md").read_text(encoding="utf-8", errors="replace")
     parser_error_plan = (ROOT / "docs/plans/2026-06-14-tomtom-parser-error-redaction.md").read_text(encoding="utf-8", errors="replace")
     invalid_encoding_plan = (ROOT / "docs/plans/2026-06-15-tomtom-invalid-encoding-redaction.md").read_text(encoding="utf-8", errors="replace")
+    finite_settings_plan = (ROOT / "docs/plans/2026-06-16-finite-commute-settings.md").read_text(encoding="utf-8", errors="replace")
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
@@ -240,6 +242,37 @@ Werkzeug==3.1.8
         failures.append("CHANGES must record positive numeric commute settings validation")
     if "status: completed" not in settings_plan:
         failures.append("positive commute settings plan must be marked completed")
+    if not all(value in app_source for value in [
+        "import math",
+        "def _finite_positive(number: float, name: str) -> float:",
+        "if not math.isfinite(number) or number <= 0:",
+        "return _finite_positive(_to_float(value, name), name)",
+        '_finite_positive(self.work_miles, "work_miles")',
+        '_finite_positive(self.miles_per_gallon, "miles_per_gallon")',
+        '_finite_positive(self.cost_per_gallon, "cost_per_gallon")',
+    ]):
+        failures.append("commute numeric settings and direct cost calculation must require finite positive values")
+    if not all(value in test_app for value in [
+        "test_load_settings_rejects_non_finite_numeric_settings",
+        "test_cost_per_day_rejects_non_finite_direct_values",
+        "math.nan, math.inf, -math.inf",
+    ]):
+        failures.append("tests must cover non-finite loaded and direct commute numeric values")
+    if not all("finite positive commute settings" in text.lower() for text in [readme, vision, security]):
+        failures.append("docs must mention finite positive commute settings")
+    if "finite positive commute settings" not in changes.lower():
+        failures.append("CHANGES must record finite positive commute settings validation")
+    if not all(value in finite_settings_plan for value in [
+        "Status: completed",
+        "all 22 offline tests",
+        "All four Make gates passed",
+        "external directory",
+        "Eight isolated hostile mutations were rejected",
+    ]) or re.search(
+        r"(?i)\b(?:pending|todo|tbd|not run)\b",
+        markdown_section(finite_settings_plan, "Verification Completed"),
+    ):
+        failures.append("finite commute settings plan must record completed verification")
     if "raise ValueError(f\"{name} must be numeric\") from None" not in app_source:
         failures.append("numeric commute settings must not expose raw conversion values")
     if "test_load_settings_rejects_non_numeric_settings_without_raw_cause" not in test_app:

@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-16
+
+- Added finite positive commute settings validation so `NaN` and infinity fail
+  during configuration loading and direct fuel-cost calculation.
+
 ## 2026-06-15
 
 - Added TomTom invalid encoding redaction so invalid UTF-8 provider bytes use

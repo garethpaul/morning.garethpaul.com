@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import importlib
+import math
 import os
 from pathlib import Path
 from typing import Mapping, Optional
@@ -37,13 +38,10 @@ class MorningSettings:
 
     @property
     def cost_per_day(self) -> float:
-        if self.work_miles <= 0:
-            raise ValueError("work_miles must be greater than zero")
-        if self.miles_per_gallon <= 0:
-            raise ValueError("miles_per_gallon must be greater than zero")
-        if self.cost_per_gallon <= 0:
-            raise ValueError("cost_per_gallon must be greater than zero")
-        return round(self.work_miles * 2 / self.miles_per_gallon * self.cost_per_gallon, 3)
+        work_miles = _finite_positive(self.work_miles, "work_miles")
+        miles_per_gallon = _finite_positive(self.miles_per_gallon, "miles_per_gallon")
+        cost_per_gallon = _finite_positive(self.cost_per_gallon, "cost_per_gallon")
+        return round(work_miles * 2 / miles_per_gallon * cost_per_gallon, 3)
 
 
 def create_app(
@@ -137,8 +135,11 @@ def _to_float(value: str, name: str) -> float:
 
 
 def _positive_float(value: str, name: str) -> float:
-    number = _to_float(value, name)
-    if number <= 0:
+    return _finite_positive(_to_float(value, name), name)
+
+
+def _finite_positive(number: float, name: str) -> float:
+    if not math.isfinite(number) or number <= 0:
         raise ValueError(f"{name} must be greater than zero")
     return number
 

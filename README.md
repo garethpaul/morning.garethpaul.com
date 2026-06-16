@@ -115,6 +115,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - The bounded TomTom response rejects more than 1 MiB before JSON parsing;
   lower HTTP layers may still buffer transport data.
 - Positive numeric commute settings are required for work miles, miles per gallon, and cost per gallon.
+- Finite positive commute settings reject `NaN` and infinity before fuel-cost
+  calculation or dashboard rendering.
 - Sanitized numeric setting errors name the invalid field without echoing raw
   local configuration values.
 
@@ -133,6 +135,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   and negative delays do not reach the dashboard.
 - Keep coordinate range validation in place so impossible home/work positions fail before live route requests.
 - Keep positive numeric commute settings validation in place so the dashboard does not render impossible fuel-cost output.
+- Keep finite positive commute settings validation in both loading and direct
+  cost calculation so non-finite output cannot reach the dashboard.
 - Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include stuff/tomtom.py.
 - Tests should use fixture responses and injected HTTP clients instead of live route calls.
 - Keep repository-relative Flask assets in place so changing the process working
