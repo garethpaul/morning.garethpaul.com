@@ -41,6 +41,8 @@ Helpful reports include:
 - Flask debug mode should remain opt-in through `FLASK_DEBUG=1` for local development only.
 - Coordinate setting validation should reject malformed home/work positions without echoing raw local values.
 - Coordinate range validation should reject impossible latitude/longitude values without echoing raw local values.
+- Coordinate whitespace normalization should remove component-edge spaces after
+  validation so accepted coordinates cannot produce a different encoded route.
 - TomTom API key placeholder validation should reject copied template keys before live route requests.
 - TomTom JSON response validation should reject malformed route responses before delay parsing.
 - TomTom delay value validation should reject booleans, fractional values, and

@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-17
+
+- Added coordinate whitespace normalization so validated commute coordinates
+  produce canonical TomTom route paths without encoded component-edge spaces.
+
 ## 2026-06-16
 
 - Added settings import error preservation so a missing dependency inside an

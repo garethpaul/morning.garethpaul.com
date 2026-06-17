@@ -107,6 +107,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Prefer environment variables: `MORNING_HOME_POS`, `MORNING_WORK_POS`, `MORNING_WORK_MILES`, `MORNING_MILES_PER_GALLON`, `MORNING_COST_PER_GALLON`, and `TOMTOM_API_KEY`.
 - Coordinate setting validation requires `MORNING_HOME_POS` and `MORNING_WORK_POS` to be numeric coordinate pairs before TomTom URL construction.
 - Coordinate range validation keeps latitude and longitude values within valid global bounds before TomTom URL construction.
+- Coordinate whitespace normalization strips component-edge spaces after
+  validation so accepted commute settings produce canonical TomTom route paths.
 - TomTom API key placeholder validation rejects copied template values before live route requests.
 - TomTom JSON response validation rejects malformed route-service responses
   before reading delay fields.

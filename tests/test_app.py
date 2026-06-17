@@ -7,6 +7,7 @@ import unittest
 from unittest import mock
 
 from app import MorningSettings, _load_optional_settings_module, create_app, load_settings
+from stuff.tomtom import route_url
 
 
 class AppTests(unittest.TestCase):
@@ -40,6 +41,24 @@ class AppTests(unittest.TestCase):
         self.assertEqual(settings.cost_per_day, 5.0)
         self.assertEqual(settings.news, "Headlines")
         self.assertFalse(settings.debug)
+
+    def test_load_settings_normalizes_coordinate_whitespace_for_route_urls(self):
+        settings = load_settings(
+            {
+                "MORNING_HOME_POS": " 37.77 , -122.42 ",
+                "MORNING_WORK_POS": " 37.79,-122.40 ",
+                "MORNING_WORK_MILES": "12",
+                "MORNING_MILES_PER_GALLON": "24",
+                "MORNING_COST_PER_GALLON": "5",
+                "TOMTOM_API_KEY": "key",
+            }
+        )
+
+        self.assertEqual(settings.home_pos, "37.77,-122.42")
+        self.assertEqual(settings.work_pos, "37.79,-122.40")
+        url = route_url("work", settings)
+        self.assertIn("37.77,-122.42:37.79,-122.40", url)
+        self.assertNotIn("%20", url)
 
     def test_load_settings_uses_local_module_fallback(self):
         module = SimpleNamespace(

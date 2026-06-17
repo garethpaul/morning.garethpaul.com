@@ -1,7 +1,7 @@
 ---
 title: "fix: Normalize validated commute coordinates"
 type: fix
-status: planned
+status: completed
 date: 2026-06-17
 execution: code
 ---
@@ -97,3 +97,26 @@ the validated numeric pair represents.
   assertions, route URL assertions, guidance, and completed plan evidence.
 - Audit the exact diff, artifacts, credentials, conflict markers, and intended
   paths.
+
+## Work Completed
+
+- Stripped surrounding whitespace independently from both coordinate
+  components before numeric and range validation.
+- Returned the validated component text with one canonical comma, preserving
+  decimal precision and valid numeric notation.
+- Added an executable settings-to-route regression proving the TomTom path has
+  canonical coordinates and no encoded component-edge spaces.
+- Added mutation-sensitive static contracts and synchronized project guidance.
+
+## Verification Completed
+
+- All 25 offline tests passed, including the coordinate normalization and route
+  URL regression.
+- All four Make gates passed from the repository root and through the absolute
+  Makefile path from an external directory.
+- Seven isolated hostile mutations were rejected for component stripping,
+  normalized numeric parsing, canonical joining, executable test identity, URL
+  assertion, guidance, and completed plan status.
+- Python compilation, `git diff --check`, exact intended-path, generated-artifact,
+  credential-pattern, conflict-marker, binary, and large-file audits passed.
+- No live TomTom request was made.

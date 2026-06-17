@@ -150,14 +150,15 @@ def _coordinate_pair(value: str, name: str) -> str:
     parts = value.split(",")
     if len(parts) != 2:
         raise ValueError(f"{name} must be a numeric coordinate pair")
+    normalized_parts = [part.strip() for part in parts]
     try:
-        latitude = float(parts[0])
-        longitude = float(parts[1])
+        latitude = float(normalized_parts[0])
+        longitude = float(normalized_parts[1])
     except ValueError:
         raise ValueError(f"{name} must be a numeric coordinate pair") from None
     if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
         raise ValueError(f"{name} must be a numeric coordinate pair")
-    return value
+    return ",".join(normalized_parts)
 
 
 def _configured_api_key(value: str, name: str) -> str:

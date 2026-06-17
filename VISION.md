@@ -43,6 +43,8 @@ Priority:
 - Keep placeholder settings importable without real commute values
 - Keep coordinate setting validation before TomTom URL construction
 - Keep coordinate range validation before TomTom URL construction
+- Keep coordinate whitespace normalization after validation and before TomTom
+  URL construction
 - Keep TomTom API key placeholder validation before live route requests
 - Keep TomTom JSON response validation before route delay parsing
 - Keep TomTom delay value validation before rendering route delay data

@@ -62,6 +62,7 @@ REQUIRED = [
     "docs/plans/2026-06-15-tomtom-invalid-encoding-redaction.md",
     "docs/plans/2026-06-16-finite-commute-settings.md",
     "docs/plans/2026-06-16-settings-import-error-preservation.md",
+    "docs/plans/2026-06-17-coordinate-whitespace-normalization.md",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -137,6 +138,7 @@ def main() -> int:
     invalid_encoding_plan = (ROOT / "docs/plans/2026-06-15-tomtom-invalid-encoding-redaction.md").read_text(encoding="utf-8", errors="replace")
     finite_settings_plan = (ROOT / "docs/plans/2026-06-16-finite-commute-settings.md").read_text(encoding="utf-8", errors="replace")
     settings_import_plan = (ROOT / "docs/plans/2026-06-16-settings-import-error-preservation.md").read_text(encoding="utf-8", errors="replace")
+    coordinate_normalization_plan = (ROOT / "docs/plans/2026-06-17-coordinate-whitespace-normalization.md").read_text(encoding="utf-8", errors="replace")
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
@@ -338,6 +340,34 @@ Werkzeug==3.1.8
         failures.append("CHANGES must record coordinate range validation")
     if "status: completed" not in coordinate_range_plan:
         failures.append("coordinate range validation plan must be marked completed")
+    if not all(token in app_source for token in [
+        "normalized_parts = [part.strip() for part in parts]",
+        "latitude = float(normalized_parts[0])",
+        "longitude = float(normalized_parts[1])",
+        'return ",".join(normalized_parts)',
+    ]):
+        failures.append("validated commute coordinates must be returned without component-edge whitespace")
+    if not all(token in test_app for token in [
+        "test_load_settings_normalizes_coordinate_whitespace_for_route_urls",
+        'self.assertEqual(settings.home_pos, "37.77,-122.42")',
+        'self.assertEqual(settings.work_pos, "37.79,-122.40")',
+        'self.assertNotIn("%20", url)',
+    ]):
+        failures.append("tests must cover coordinate normalization through TomTom route construction")
+    if not all("coordinate whitespace normalization" in text.lower() for text in [readme, vision, security, changes]):
+        failures.append("project guidance must document coordinate whitespace normalization")
+    if not all(token in coordinate_normalization_plan for token in [
+        "status: completed",
+        "All 25 offline tests passed",
+        "All four Make gates passed",
+        "external directory",
+        "Seven isolated hostile mutations were rejected",
+        "No live TomTom request was made",
+    ]) or re.search(
+        r"(?i)\b(?:pending|todo|tbd|not run)\b",
+        markdown_section(coordinate_normalization_plan, "Verification Completed"),
+    ):
+        failures.append("coordinate whitespace normalization plan must record completed verification")
     if "status: completed" not in check_order_plan:
         failures.append("check target gate order plan must be marked completed")
     if "_configured_api_key" not in app_source or "YOUR_TOMTOM_API_KEY" not in app_source:
