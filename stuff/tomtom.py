@@ -41,6 +41,7 @@ def route_url(where: str, settings) -> str:
 def traffic_delay_seconds(where: str, settings, http_get: Callable = requests.get) -> int:
     response = None
     request_failed = False
+    delay = None
     try:
         response = http_get(
             route_url(where, settings),
@@ -52,15 +53,19 @@ def traffic_delay_seconds(where: str, settings, http_get: Callable = requests.ge
             stream=True,
         )
         response.raise_for_status()
-        return parse_delay_seconds(read_tomtom_response(response))
+        delay = parse_delay_seconds(read_tomtom_response(response))
     except requests.RequestException:
         request_failed = True
     finally:
         if response is not None:
-            response.close()
+            try:
+                response.close()
+            except Exception:
+                request_failed = True
 
     if request_failed:
         raise RuntimeError("TomTom request failed")
+    return delay
 
 
 def read_tomtom_response(response) -> bytes:

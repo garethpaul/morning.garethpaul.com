@@ -60,6 +60,23 @@ class AppTests(unittest.TestCase):
         self.assertIn("37.77,-122.42:37.79,-122.40", url)
         self.assertNotIn("%20", url)
 
+    def test_load_settings_rejects_noncanonical_coordinate_tokens(self):
+        base_env = {
+            "MORNING_HOME_POS": "37.77,-122.42",
+            "MORNING_WORK_POS": "37.79,-122.40",
+            "MORNING_WORK_MILES": "12",
+            "MORNING_MILES_PER_GALLON": "24",
+            "MORNING_COST_PER_GALLON": "5",
+            "TOMTOM_API_KEY": "key",
+        }
+
+        for value in ("3_7.77,-122.42", "٣٧.٧٧,-122.42"):
+            with self.subTest(value=value):
+                env = dict(base_env)
+                env["MORNING_HOME_POS"] = value
+                with self.assertRaisesRegex(ValueError, "home_pos must be a numeric coordinate pair"):
+                    load_settings(env)
+
     def test_load_settings_uses_local_module_fallback(self):
         module = SimpleNamespace(
             home_pos="1,2",

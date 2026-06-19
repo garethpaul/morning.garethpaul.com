@@ -42,6 +42,7 @@ Priority:
 - Keep home/work coordinates in environment variables or ignored local settings
 - Keep placeholder settings importable without real commute values
 - Keep coordinate setting validation before TomTom URL construction
+- Keep coordinate tokens in provider-compatible ASCII decimal notation
 - Keep coordinate range validation before TomTom URL construction
 - Keep coordinate whitespace normalization after validation and before TomTom
   URL construction
@@ -49,7 +50,7 @@ Priority:
 - Keep TomTom JSON response validation before route delay parsing
 - Keep TomTom delay value validation before rendering route delay data
 - Keep the bounded TomTom response before JSON parsing
-- Keep TomTom transport error redaction before request failures reach logs
+- Keep TomTom transport error redaction before request or cleanup failures reach logs
 - Keep TomTom parser error redaction around malformed JSON validation
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
 - Keep finite positive commute settings across loading and direct cost calculation

@@ -8,9 +8,10 @@ from stuff.tomtom import parse_delay_seconds, route_url, traffic_delay_seconds
 
 
 class FakeResponse:
-    def __init__(self, body, status_error=None):
+    def __init__(self, body, status_error=None, close_error=None):
         self.body = body.encode() if isinstance(body, str) else body
         self.status_error = status_error
+        self.close_error = close_error
         self.raised = False
         self.closed = False
         self.chunk_sizes = []
@@ -27,6 +28,8 @@ class FakeResponse:
 
     def close(self):
         self.closed = True
+        if self.close_error:
+            raise self.close_error
 
 
 class TomTomTests(unittest.TestCase):
@@ -135,6 +138,22 @@ class TomTomTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "^TomTom request failed$") as raised:
             traffic_delay_seconds("work", settings, http_get=fail_request)
 
+        self.assertIsNone(raised.exception.__cause__)
+        self.assertIsNone(raised.exception.__context__)
+        self.assertNotIn(secret, str(raised.exception))
+
+    def test_traffic_delay_seconds_redacts_response_close_errors(self):
+        secret = "private-tomtom-key"
+        settings = SimpleNamespace(home_pos="1,2", work_pos="3,4", tomtom_api_key=secret)
+        response = FakeResponse(
+            '{"route": {"summary": {"totalDelaySeconds": 99}}}',
+            close_error=requests.HTTPError(f"failed closing https://routes.tomtom.com/{secret}"),
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "^TomTom request failed$") as raised:
+            traffic_delay_seconds("work", settings, http_get=lambda *args, **kwargs: response)
+
+        self.assertTrue(response.closed)
         self.assertIsNone(raised.exception.__cause__)
         self.assertIsNone(raised.exception.__context__)
         self.assertNotIn(secret, str(raised.exception))

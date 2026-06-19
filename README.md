@@ -91,8 +91,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   responses fail with stable parser errors.
 - The bounded TomTom response reader streams at most 1 MiB of decompressed
   content into JSON parsing and closes responses on success or failure.
-- TomTom transport error redaction converts Requests transport and HTTP status
-  failures to a stable message without retaining the API-key-bearing URL.
+- TomTom transport error redaction converts Requests transport, HTTP status,
+  and response cleanup failures to a stable message without retaining the
+  API-key-bearing URL.
 - TomTom parser error redaction raises malformed-JSON failures outside the
   decoder handler so provider response bodies are not retained in exceptions.
 - TomTom invalid encoding redaction maps invalid UTF-8 response bytes to the
@@ -106,6 +107,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - `settings.py.example` in this repository is a placeholder template; real values belong in local-only `settings.py` or another ignored local configuration file.
 - Prefer environment variables: `MORNING_HOME_POS`, `MORNING_WORK_POS`, `MORNING_WORK_MILES`, `MORNING_MILES_PER_GALLON`, `MORNING_COST_PER_GALLON`, and `TOMTOM_API_KEY`.
 - Coordinate setting validation requires `MORNING_HOME_POS` and `MORNING_WORK_POS` to be numeric coordinate pairs before TomTom URL construction.
+- Coordinate components must use ASCII decimal notation; Python-only numeric
+  forms such as underscores and Unicode digits are rejected before route calls.
 - Coordinate range validation keeps latitude and longitude values within valid global bounds before TomTom URL construction.
 - Coordinate whitespace normalization strips component-edge spaces after
   validation so accepted commute settings produce canonical TomTom route paths.
@@ -126,8 +129,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - Review changes touching network requests, sockets, or service endpoints; examples from the scan include app.py, stuff/tomtom.py, templates/index.html.
 - Keep TomTom requests on HTTPS and do not enable Flask debug mode in hosted deployments.
-- Keep TomTom transport error redaction in place so request URLs containing the
-  API key do not reach Flask or process-supervisor exception logs.
+- Keep TomTom transport error redaction in place so request or cleanup failures
+  containing API-key-bearing URLs do not reach application logs.
 - Keep TomTom parser error redaction in place so malformed provider bodies do
   not remain reachable through chained decoder exceptions.
 - Keep TomTom API key placeholder validation in place so copied templates fail before live route requests.

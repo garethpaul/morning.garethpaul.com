@@ -7,6 +7,7 @@ import importlib
 import math
 import os
 from pathlib import Path
+import re
 from typing import Mapping, Optional
 
 from flask import Flask, render_template
@@ -23,6 +24,7 @@ REQUIRED_SETTINGS = [
     "tomtom_api_key",
 ]
 BASE_DIR = Path(__file__).resolve().parent
+COORDINATE_COMPONENT = re.compile(r"[+-]?(?:\d+(?:\.\d+)?|\.\d+)\Z", re.ASCII)
 
 
 @dataclass(frozen=True)
@@ -151,6 +153,8 @@ def _coordinate_pair(value: str, name: str) -> str:
     if len(parts) != 2:
         raise ValueError(f"{name} must be a numeric coordinate pair")
     normalized_parts = [part.strip() for part in parts]
+    if not all(COORDINATE_COMPONENT.fullmatch(part) for part in normalized_parts):
+        raise ValueError(f"{name} must be a numeric coordinate pair")
     try:
         latitude = float(normalized_parts[0])
         longitude = float(normalized_parts[1])

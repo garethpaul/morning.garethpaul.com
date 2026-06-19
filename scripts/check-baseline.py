@@ -341,12 +341,21 @@ Werkzeug==3.1.8
     if "status: completed" not in coordinate_range_plan:
         failures.append("coordinate range validation plan must be marked completed")
     if not all(token in app_source for token in [
+        'COORDINATE_COMPONENT = re.compile(',
+        "re.ASCII",
         "normalized_parts = [part.strip() for part in parts]",
+        "COORDINATE_COMPONENT.fullmatch(part)",
         "latitude = float(normalized_parts[0])",
         "longitude = float(normalized_parts[1])",
         'return ",".join(normalized_parts)',
     ]):
         failures.append("validated commute coordinates must be returned without component-edge whitespace")
+    if not all(token in test_app for token in [
+        "test_load_settings_rejects_noncanonical_coordinate_tokens",
+        '"3_7.77,-122.42"',
+        '"٣٧.٧٧,-122.42"',
+    ]):
+        failures.append("tests must reject noncanonical ASCII and Unicode coordinate tokens")
     if not all(token in test_app for token in [
         "test_load_settings_normalizes_coordinate_whitespace_for_route_urls",
         'self.assertEqual(settings.home_pos, "37.77,-122.42")',
@@ -457,7 +466,9 @@ Werkzeug==3.1.8
         "body.extend(chunk[:remaining])",
         "if len(body) > MAXIMUM_TOMTOM_RESPONSE_BYTES",
         "TomTom response exceeds 1 MiB limit",
-        "finally:\n        if response is not None:\n            response.close()",
+        "finally:\n        if response is not None:",
+        "try:\n                response.close()",
+        "except Exception:\n                request_failed = True",
     ]):
         failures.append("TomTom responses must be streamed, bounded, and closed before parsing")
     if not all(value in test_tomtom for value in [
@@ -478,6 +489,7 @@ Werkzeug==3.1.8
         failures.append("TomTom request failures must use a stable credential-redacted error boundary")
     if not all(value in test_tomtom for value in [
         "test_traffic_delay_seconds_redacts_transport_error_url",
+        "test_traffic_delay_seconds_redacts_response_close_errors",
         "requests.Timeout",
         "requests.HTTPError",
         "self.assertIsNone(raised.exception.__context__)",

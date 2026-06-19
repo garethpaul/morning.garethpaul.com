@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-19
+
+- Rejected noncanonical coordinate tokens that Python accepts as numbers but
+  TomTom route paths do not accept as decimal coordinates.
+- Extended TomTom transport error redaction to response cleanup failures so a
+  close exception cannot expose an API-key-bearing request URL.
+
 ## 2026-06-17
 
 - Added coordinate whitespace normalization so validated commute coordinates
