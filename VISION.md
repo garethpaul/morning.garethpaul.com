@@ -24,6 +24,15 @@ TomTom JSON response validation keeps malformed route-service responses on a
 stable parser error path before delay parsing.
 TomTom delay value validation keeps parsed route delays on a non-negative
 integer contract.
+The bounded TomTom response keeps decompressed content entering JSON parsing at
+or below 1 MiB and closes the HTTP response deterministically.
+TomTom parser error redaction keeps malformed provider response bodies out of
+the exception chain exposed to application diagnostics.
+TomTom invalid encoding redaction keeps raw invalid UTF-8 provider bytes out of
+that same exception chain.
+Reviewed Python 3.12 dependency constraints keep hosted resolution stable while
+using the patched Flask 3.1 line and preserving the requests 2.x compatibility
+range. They do not authenticate downloaded artifacts with hashes.
 
 The current focus is:
 
@@ -33,11 +42,19 @@ Priority:
 - Keep home/work coordinates in environment variables or ignored local settings
 - Keep placeholder settings importable without real commute values
 - Keep coordinate setting validation before TomTom URL construction
+- Keep coordinate tokens in provider-compatible ASCII decimal notation
 - Keep coordinate range validation before TomTom URL construction
+- Keep coordinate whitespace normalization after validation and before TomTom
+  URL construction
 - Keep TomTom API key placeholder validation before live route requests
 - Keep TomTom JSON response validation before route delay parsing
 - Keep TomTom delay value validation before rendering route delay data
+- Keep the bounded TomTom response before JSON parsing
+- Keep TomTom transport error redaction before request or cleanup failures reach logs
+- Keep TomTom parser error redaction around malformed JSON validation
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
+- Keep finite positive commute settings across loading and direct cost calculation
+- Keep settings import error preservation for failures inside local configuration
 - Keep sanitized numeric setting errors from echoing raw local values
 - Keep lint, test, build, and check gates mapped to the offline baseline
 - Keep check target gate order delegated through lint, test, and build
@@ -50,7 +67,8 @@ Next priorities:
 
 - Add weather or news inputs behind the same fixture-first testing approach
 - Keep pinned, read-only Python 3.12 hosted validation covering dependency
-  installation, `pip check`, and offline route tests without TomTom access
+  installation through the reviewed constraints graph, `pip check`, and
+  offline route tests without TomTom access
 - Document deployment environment variables for any hosted deployment
 
 Contribution rules:
@@ -62,6 +80,8 @@ Contribution rules:
 - Verify parsing with fixtures before live route calls.
 - Document external route-service changes.
 - Preserve positive numeric commute settings validation when changing cost logic.
+- Preserve finite positive commute settings validation so `NaN` and infinity
+  cannot become rendered fuel costs.
 - Preserve coordinate range validation when changing route settings parsing.
 - Preserve sanitized numeric setting errors when changing configuration parsing.
 - Preserve repository-relative Flask assets when changing the app factory.

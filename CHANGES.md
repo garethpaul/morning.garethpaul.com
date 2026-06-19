@@ -1,7 +1,51 @@
 # Changes
 
+## 2026-06-19
+
+- Rejected noncanonical coordinate tokens that Python accepts as numbers but
+  TomTom route paths do not accept as decimal coordinates.
+- Extended TomTom transport error redaction to response cleanup failures so a
+  close exception cannot expose an API-key-bearing request URL.
+
+## 2026-06-17
+
+- Added coordinate whitespace normalization so validated commute coordinates
+  produce canonical TomTom route paths without encoded component-edge spaces.
+
+## 2026-06-16
+
+- Added settings import error preservation so a missing dependency inside an
+  existing local settings module is no longer misreported as absent configuration.
+- Added finite positive commute settings validation so `NaN` and infinity fail
+  during configuration loading and direct fuel-cost calculation.
+
+## 2026-06-15
+
+- Added TomTom invalid encoding redaction so invalid UTF-8 provider bytes use
+  the same stable body-free parser error as malformed JSON.
+
+## 2026-06-14
+
+- Added TomTom parser error redaction so malformed provider response bodies are
+  not retained through chained JSON decoder exceptions.
+
+## 2026-06-13
+
+- Made tests, compilation, static checks, verification, and generated-file
+  cleanup resolve from the checkout for absolute Makefile invocations.
+- Added TomTom transport error redaction so timeout and HTTP status failures do
+  not retain the API-key-bearing request URL.
+
 ## 2026-06-10
 
+- Added a reviewed 12-package Python 3.12 `constraints.txt` graph for hosted
+  dependency resolution, explicit credential-free checkout, and exact
+  workflow, cache, documentation, and plan contracts. Version constraints do
+  not authenticate downloaded package artifacts.
+- Upgraded the Flask compatibility range to `>=3.1.3,<3.2`, the patched line
+  for `CVE-2026-27205` / `GHSA-68rp-wp8r-4726`.
+- Added a bounded TomTom response reader that streams at most 1 MiB into JSON
+  parsing and closes HTTP responses on success and failure.
 - Added TomTom delay value validation so booleans, fractional values, and
   negative delays fail before dashboard rendering.
 - Added pinned, read-only Python 3.12 hosted validation for dependency

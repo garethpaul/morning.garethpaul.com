@@ -28,7 +28,11 @@ Helpful reports include:
 - Review found network clients, sockets, web APIs, or service endpoints; changes in those areas should receive security-focused review before merge.
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
-- Dependency manifest detected: requirements.txt. Run `make lint`, `make test`, `make build`, and `make check` after changing Python sources, TomTom route handling, local settings, templates, dependencies, or security docs.
+- Dependency manifests detected: `requirements.txt` and `constraints.txt`.
+  Preserve the direct compatibility ranges and reviewed exact CI graph. Run
+  `make lint`, `make test`, `make build`, and `make check` after changing
+  Python sources, TomTom route handling, local settings, templates,
+  dependencies, or security docs.
 - The pinned Linux workflow installs declared dependencies and runs offline
   tests without TomTom credentials, personal coordinates, local settings, or
   live route requests.
@@ -37,11 +41,28 @@ Helpful reports include:
 - Flask debug mode should remain opt-in through `FLASK_DEBUG=1` for local development only.
 - Coordinate setting validation should reject malformed home/work positions without echoing raw local values.
 - Coordinate range validation should reject impossible latitude/longitude values without echoing raw local values.
+- Coordinate whitespace normalization should remove component-edge spaces after
+  validation so accepted coordinates cannot produce a different encoded route.
+- Coordinate token validation should reject Python-only forms such as numeric
+  underscores and Unicode digits before constructing provider URLs.
 - TomTom API key placeholder validation should reject copied template keys before live route requests.
 - TomTom JSON response validation should reject malformed route responses before delay parsing.
 - TomTom delay value validation should reject booleans, fractional values, and
   negative delays before route data reaches the dashboard.
+- The bounded TomTom response should reject more than 1 MiB of decompressed
+  parser input and close HTTP responses without exposing their content.
+- TomTom transport error redaction should replace Requests transport, HTTP
+  status, and response cleanup exceptions before API-key-bearing route URLs can
+  reach logs.
+- TomTom parser error redaction should raise malformed-JSON validation failures
+  without retaining the provider body in a decoder exception.
+- TomTom invalid encoding redaction should map invalid UTF-8 provider bytes to
+  the same body-free parser error.
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
+- Finite positive commute settings should reject `NaN` and infinity during
+  loading and direct cost calculation before output reaches the dashboard.
+- Settings import error preservation should suppress only an absent optional
+  `settings.py`; nested dependency failures must retain their original diagnostic.
 - Sanitized numeric setting errors should identify invalid fields without echoing
   raw local configuration values.
 - Repository-relative Flask assets should keep checked-in templates and static
@@ -56,6 +77,13 @@ For this commute dashboard, reports should also state whether home/work coordina
 ## Dependency and Supply Chain Security
 
 Dependency updates should come from trusted package managers and should keep manifests in sync when they exist. Do not commit credentials, private keys, tokens, generated secrets, route API keys, home/work coordinates, personal commute details, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
+
+GitHub Actions applies `constraints.txt` to freeze the reviewed Python 3.12
+resolution. This reduces resolver drift but is not artifact authentication;
+the constraints file does not contain package hashes.
+Flask is restricted to `>=3.1.3,<3.2`; GitHub's reviewed
+`GHSA-68rp-wp8r-4726` advisory identifies 3.1.3 as the first release patched
+for the session cache `Vary: Cookie` issue tracked as `CVE-2026-27205`.
 
 ## Safe Research Guidelines
 

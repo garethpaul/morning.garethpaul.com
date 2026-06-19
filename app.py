@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import importlib
+import math
 import os
 from pathlib import Path
+import re
 from typing import Mapping, Optional
 
 from flask import Flask, render_template
@@ -22,6 +24,7 @@ REQUIRED_SETTINGS = [
     "tomtom_api_key",
 ]
 BASE_DIR = Path(__file__).resolve().parent
+COORDINATE_COMPONENT = re.compile(r"[+-]?(?:\d+(?:\.\d+)?|\.\d+)\Z", re.ASCII)
 
 
 @dataclass(frozen=True)
@@ -37,13 +40,10 @@ class MorningSettings:
 
     @property
     def cost_per_day(self) -> float:
-        if self.work_miles <= 0:
-            raise ValueError("work_miles must be greater than zero")
-        if self.miles_per_gallon <= 0:
-            raise ValueError("miles_per_gallon must be greater than zero")
-        if self.cost_per_gallon <= 0:
-            raise ValueError("cost_per_gallon must be greater than zero")
-        return round(self.work_miles * 2 / self.miles_per_gallon * self.cost_per_gallon, 3)
+        work_miles = _finite_positive(self.work_miles, "work_miles")
+        miles_per_gallon = _finite_positive(self.miles_per_gallon, "miles_per_gallon")
+        cost_per_gallon = _finite_positive(self.cost_per_gallon, "cost_per_gallon")
+        return round(work_miles * 2 / miles_per_gallon * cost_per_gallon, 3)
 
 
 def create_app(
@@ -109,7 +109,9 @@ def load_settings(env: Mapping[str, str] = os.environ, settings_module: Optional
 def _load_optional_settings_module():
     try:
         return importlib.import_module("settings")
-    except ModuleNotFoundError:
+    except ModuleNotFoundError as error:
+        if error.name != "settings":
+            raise
         return None
 
 
@@ -137,8 +139,11 @@ def _to_float(value: str, name: str) -> float:
 
 
 def _positive_float(value: str, name: str) -> float:
-    number = _to_float(value, name)
-    if number <= 0:
+    return _finite_positive(_to_float(value, name), name)
+
+
+def _finite_positive(number: float, name: str) -> float:
+    if not math.isfinite(number) or number <= 0:
         raise ValueError(f"{name} must be greater than zero")
     return number
 
@@ -147,14 +152,17 @@ def _coordinate_pair(value: str, name: str) -> str:
     parts = value.split(",")
     if len(parts) != 2:
         raise ValueError(f"{name} must be a numeric coordinate pair")
+    normalized_parts = [part.strip() for part in parts]
+    if not all(COORDINATE_COMPONENT.fullmatch(part) for part in normalized_parts):
+        raise ValueError(f"{name} must be a numeric coordinate pair")
     try:
-        latitude = float(parts[0])
-        longitude = float(parts[1])
+        latitude = float(normalized_parts[0])
+        longitude = float(normalized_parts[1])
     except ValueError:
         raise ValueError(f"{name} must be a numeric coordinate pair") from None
     if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
         raise ValueError(f"{name} must be a numeric coordinate pair")
-    return value
+    return ",".join(normalized_parts)
 
 
 def _configured_api_key(value: str, name: str) -> str:

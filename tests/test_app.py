@@ -1,9 +1,13 @@
+from dataclasses import replace
+import math
 from types import SimpleNamespace
 import os
 import tempfile
 import unittest
+from unittest import mock
 
-from app import MorningSettings, create_app, load_settings
+from app import MorningSettings, _load_optional_settings_module, create_app, load_settings
+from stuff.tomtom import route_url
 
 
 class AppTests(unittest.TestCase):
@@ -38,6 +42,41 @@ class AppTests(unittest.TestCase):
         self.assertEqual(settings.news, "Headlines")
         self.assertFalse(settings.debug)
 
+    def test_load_settings_normalizes_coordinate_whitespace_for_route_urls(self):
+        settings = load_settings(
+            {
+                "MORNING_HOME_POS": " 37.77 , -122.42 ",
+                "MORNING_WORK_POS": " 37.79,-122.40 ",
+                "MORNING_WORK_MILES": "12",
+                "MORNING_MILES_PER_GALLON": "24",
+                "MORNING_COST_PER_GALLON": "5",
+                "TOMTOM_API_KEY": "key",
+            }
+        )
+
+        self.assertEqual(settings.home_pos, "37.77,-122.42")
+        self.assertEqual(settings.work_pos, "37.79,-122.40")
+        url = route_url("work", settings)
+        self.assertIn("37.77,-122.42:37.79,-122.40", url)
+        self.assertNotIn("%20", url)
+
+    def test_load_settings_rejects_noncanonical_coordinate_tokens(self):
+        base_env = {
+            "MORNING_HOME_POS": "37.77,-122.42",
+            "MORNING_WORK_POS": "37.79,-122.40",
+            "MORNING_WORK_MILES": "12",
+            "MORNING_MILES_PER_GALLON": "24",
+            "MORNING_COST_PER_GALLON": "5",
+            "TOMTOM_API_KEY": "key",
+        }
+
+        for value in ("3_7.77,-122.42", "٣٧.٧٧,-122.42"):
+            with self.subTest(value=value):
+                env = dict(base_env)
+                env["MORNING_HOME_POS"] = value
+                with self.assertRaisesRegex(ValueError, "home_pos must be a numeric coordinate pair"):
+                    load_settings(env)
+
     def test_load_settings_uses_local_module_fallback(self):
         module = SimpleNamespace(
             home_pos="1,2",
@@ -53,6 +92,25 @@ class AppTests(unittest.TestCase):
         settings = load_settings({}, settings_module=module)
 
         self.assertEqual(settings.cost_per_day, 4.0)
+
+    def test_optional_settings_module_allows_top_level_absence(self):
+        missing_settings = ModuleNotFoundError("No module named 'settings'", name="settings")
+
+        with mock.patch("app.importlib.import_module", side_effect=missing_settings):
+            self.assertIsNone(_load_optional_settings_module())
+
+    def test_optional_settings_module_preserves_nested_import_failure(self):
+        missing_dependency = ModuleNotFoundError(
+            "No module named 'private_settings_dependency'",
+            name="private_settings_dependency",
+        )
+
+        with mock.patch("app.importlib.import_module", side_effect=missing_dependency):
+            with self.assertRaises(ModuleNotFoundError) as raised:
+                _load_optional_settings_module()
+
+        self.assertIs(raised.exception, missing_dependency)
+        self.assertEqual(raised.exception.name, "private_settings_dependency")
 
     def test_load_settings_rejects_non_positive_numeric_settings(self):
         base_env = {
@@ -75,6 +133,42 @@ class AppTests(unittest.TestCase):
                 env[key] = value
                 with self.assertRaisesRegex(ValueError, f"{setting_name} must be greater than zero"):
                     load_settings(env)
+
+    def test_load_settings_rejects_non_finite_numeric_settings(self):
+        base_env = {
+            "MORNING_HOME_POS": "1,2",
+            "MORNING_WORK_POS": "3,4",
+            "MORNING_WORK_MILES": "12",
+            "MORNING_MILES_PER_GALLON": "24",
+            "MORNING_COST_PER_GALLON": "5",
+            "TOMTOM_API_KEY": "key",
+        }
+        cases = [
+            ("MORNING_WORK_MILES", "nan", "work_miles"),
+            ("MORNING_WORK_MILES", "inf", "work_miles"),
+            ("MORNING_WORK_MILES", "-inf", "work_miles"),
+            ("MORNING_MILES_PER_GALLON", "nan", "miles_per_gallon"),
+            ("MORNING_MILES_PER_GALLON", "inf", "miles_per_gallon"),
+            ("MORNING_MILES_PER_GALLON", "-inf", "miles_per_gallon"),
+            ("MORNING_COST_PER_GALLON", "nan", "cost_per_gallon"),
+            ("MORNING_COST_PER_GALLON", "inf", "cost_per_gallon"),
+            ("MORNING_COST_PER_GALLON", "-inf", "cost_per_gallon"),
+        ]
+
+        for key, value, setting_name in cases:
+            with self.subTest(key=key, value=value):
+                env = dict(base_env)
+                env[key] = value
+                with self.assertRaisesRegex(ValueError, f"{setting_name} must be greater than zero"):
+                    load_settings(env)
+
+    def test_cost_per_day_rejects_non_finite_direct_values(self):
+        for field in ("work_miles", "miles_per_gallon", "cost_per_gallon"):
+            for value in (math.nan, math.inf, -math.inf):
+                with self.subTest(field=field, value=value):
+                    settings = replace(self.settings(), **{field: value})
+                    with self.assertRaisesRegex(ValueError, f"{field} must be greater than zero"):
+                        settings.cost_per_day
 
     def test_load_settings_rejects_non_numeric_settings_without_raw_cause(self):
         env = {
