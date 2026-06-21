@@ -73,6 +73,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - The Make gates are location-independent. From another directory, pass the
   checkout's Makefile by absolute path, such as
   `make -f /path/to/morning.garethpaul.com/Makefile check`.
+- Absolute Makefile paths containing spaces, brackets, or apostrophes retain
+  the complete checkout root. `ROOT` overrides are ignored, and attempts to
+  override GNU Make's `MAKEFILE_LIST` metadata fail closed.
 - Check target gate order keeps the full local gate delegated through the same
   named lint, test, and build targets used before pushing.
 - Pinned, credential-free `ubuntu-24.04` GitHub Actions installs

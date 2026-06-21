@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-21
+
+- Preserved the complete checkout root for absolute Makefile paths containing
+  spaces, brackets, or apostrophes, and rejected `MAKEFILE_LIST` overrides.
+- Added offline regression coverage for all eight Make aliases and command-line
+  or environment root override attempts.
+
 ## 2026-06-19
 
 - Rejected noncanonical coordinate tokens that Python accepts as numbers but

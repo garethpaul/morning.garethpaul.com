@@ -7,7 +7,10 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_MAKEFILE = """override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+EXPECTED_MAKEFILE = """ifneq ($(origin MAKEFILE_LIST),file)
+$(error MAKEFILE_LIST must not be overridden)
+endif
+override ROOT := $(shell path='$(subst ','"'"',$(MAKEFILE_LIST))'; path=$$(printf '%s\\n' "$$path" | sed 's/^ //'); dirname -- "$$path")
 
 .PHONY: build check clean compile lint static-check test verify
 
@@ -63,6 +66,8 @@ REQUIRED = [
     "docs/plans/2026-06-16-finite-commute-settings.md",
     "docs/plans/2026-06-16-settings-import-error-preservation.md",
     "docs/plans/2026-06-17-coordinate-whitespace-normalization.md",
+    "docs/plans/2026-06-21-spaced-makefile-path.md",
+    "tests/test_check_baseline.py",
     "tests/test_app.py",
     "tests/test_tomtom.py",
 ]
@@ -139,6 +144,7 @@ def main() -> int:
     finite_settings_plan = (ROOT / "docs/plans/2026-06-16-finite-commute-settings.md").read_text(encoding="utf-8", errors="replace")
     settings_import_plan = (ROOT / "docs/plans/2026-06-16-settings-import-error-preservation.md").read_text(encoding="utf-8", errors="replace")
     coordinate_normalization_plan = (ROOT / "docs/plans/2026-06-17-coordinate-whitespace-normalization.md").read_text(encoding="utf-8", errors="replace")
+    spaced_makefile_plan = (ROOT / "docs/plans/2026-06-21-spaced-makefile-path.md").read_text(encoding="utf-8", errors="replace")
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
@@ -227,6 +233,13 @@ Werkzeug==3.1.8
 
     if makefile != EXPECTED_MAKEFILE:
         failures.append("Makefile must exactly preserve rooted lint, test, build, check, verify, and clean gates")
+    if not all(value in spaced_makefile_plan for value in [
+        "status: completed",
+        "spaces, brackets, and an apostrophe",
+        "MAKEFILE_LIST",
+        "all eight Make aliases",
+    ]):
+        failures.append("spaced Makefile path plan must preserve completed hostile-path and override verification")
     if "make -f /path/to/morning.garethpaul.com/Makefile check" not in readme:
         failures.append("README must document location-independent Makefile invocation")
     if not all(value in location_independent_make_plan for value in [
