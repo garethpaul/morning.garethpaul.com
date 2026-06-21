@@ -22,6 +22,9 @@ Sanitized numeric setting errors keep invalid local configuration values out of
 exception text.
 TomTom JSON response validation keeps malformed route-service responses on a
 stable parser error path before delay parsing.
+The TomTom Calculate Route contract keeps requests on the current
+`api.tomtom.com` endpoint and reads
+`routes[0].summary.trafficDelayInSeconds` without legacy fallback.
 TomTom delay value validation keeps parsed route delays on a non-negative
 integer contract.
 The bounded TomTom response keeps decompressed content entering JSON parsing at
@@ -48,6 +51,7 @@ Priority:
   URL construction
 - Keep TomTom API key placeholder validation before live route requests
 - Keep TomTom JSON response validation before route delay parsing
+- Keep the TomTom Calculate Route contract and reject legacy response shapes
 - Keep TomTom delay value validation before rendering route delay data
 - Keep the bounded TomTom response before JSON parsing
 - Keep TomTom transport error redaction before request or cleanup failures reach logs

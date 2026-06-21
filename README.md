@@ -7,6 +7,8 @@
 
 `garethpaul/morning.garethpaul.com` is a small Flask commute dashboard. It checks TomTom route delay data, renders a morning travel page, and estimates daily commute fuel cost.
 
+The repository name is a historical project name. No deployment configuration is included, and `morning.garethpaul.com` is not presented as a currently deployed service.
+
 This README is based on the checked-in source, manifests, scripts, and repository metadata on the `master` branch. The project language mix found during review was: Python (5).
 
 ## Repository Contents
@@ -59,6 +61,10 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Running or Using the Project
 
 - Copy `settings.py.example` to `settings.py` or set the documented environment variables before making live TomTom requests.
+- Obtain a TomTom Routing API key and set `TOMTOM_API_KEY`; live route requests
+  also require valid `MORNING_HOME_POS` and `MORNING_WORK_POS` coordinates.
+- Route requests use the current TomTom Calculate Route contract at
+  `api.tomtom.com` and parse `routes[0].summary.trafficDelayInSeconds`.
 - Run `python app.py` for local development.
 - For Flask CLI usage, set `FLASK_APP=app:create_app`.
 - Set `FLASK_DEBUG=1` only for local debugging.
@@ -118,6 +124,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - TomTom API key placeholder validation rejects copied template values before live route requests.
 - TomTom JSON response validation rejects malformed route-service responses
   before reading delay fields.
+- The TomTom Calculate Route contract rejects the obsolete endpoint, legacy
+  response shape, and missing or malformed route, summary, or delay data in
+  offline tests.
 - TomTom delay value validation accepts only non-negative integers or ASCII
   digit strings before rendering route delays.
 - The bounded TomTom response rejects more than 1 MiB before JSON parsing;

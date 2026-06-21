@@ -10,10 +10,8 @@ import requests
 
 
 ROUTE_TEMPLATE = (
-    "https://routes.tomtom.com/lbs/services/route/1/"
-    "{start}:{end}/Quickest/json/{api_key};"
-    "language=en;avoidTraffic=true;includeTraffic=true;day=today;"
-    "time=now;iqRoutes=2;trafficModelId=1358732719560;map=basic"
+    "https://api.tomtom.com/routing/1/calculateRoute/"
+    "{start}:{end}/json?key={api_key}&traffic=true&routeType=fastest"
 )
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) "
@@ -45,10 +43,7 @@ def traffic_delay_seconds(where: str, settings, http_get: Callable = requests.ge
     try:
         response = http_get(
             route_url(where, settings),
-            headers={
-                "User-Agent": USER_AGENT,
-                "Referer": "https://routes.tomtom.com/",
-            },
+            headers={"User-Agent": USER_AGENT},
             timeout=10,
             stream=True,
         )
@@ -89,26 +84,31 @@ def parse_delay_seconds(payload) -> int:
             invalid_json = True
         if invalid_json:
             raise ValueError("TomTom response must be valid JSON")
+    missing_route_data = False
     try:
-        value = payload["route"]["summary"]["totalDelaySeconds"]
-    except (KeyError, TypeError) as error:
-        raise ValueError("TomTom response missing route.summary.totalDelaySeconds") from error
+        value = payload["routes"][0]["summary"]["trafficDelayInSeconds"]
+    except (IndexError, KeyError, TypeError):
+        missing_route_data = True
+    if missing_route_data:
+        raise ValueError(
+            "TomTom response missing routes[0].summary.trafficDelayInSeconds"
+        )
 
     if isinstance(value, bool):
-        raise ValueError("TomTom totalDelaySeconds must be a non-negative integer")
+        raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
     if isinstance(value, int):
         delay = value
     elif isinstance(value, str):
         normalized = value.strip()
         if not normalized.isascii() or not normalized.isdigit():
-            raise ValueError("TomTom totalDelaySeconds must be a non-negative integer")
+            raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
         try:
             delay = int(normalized)
         except ValueError as error:
-            raise ValueError("TomTom totalDelaySeconds must be a non-negative integer") from error
+            raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer") from error
     else:
-        raise ValueError("TomTom totalDelaySeconds must be a non-negative integer")
+        raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
 
     if delay < 0:
-        raise ValueError("TomTom totalDelaySeconds must be a non-negative integer")
+        raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
     return delay

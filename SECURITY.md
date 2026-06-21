@@ -47,6 +47,9 @@ Helpful reports include:
   underscores and Unicode digits before constructing provider URLs.
 - TomTom API key placeholder validation should reject copied template keys before live route requests.
 - TomTom JSON response validation should reject malformed route responses before delay parsing.
+- The TomTom Calculate Route contract should remain on `api.tomtom.com` and
+  read `routes[0].summary.trafficDelayInSeconds`; legacy endpoint or response
+  shapes should fail closed in offline tests.
 - TomTom delay value validation should reject booleans, fractional values, and
   negative delays before route data reaches the dashboard.
 - The bounded TomTom response should reject more than 1 MiB of decompressed

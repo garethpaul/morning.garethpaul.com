@@ -4,9 +4,11 @@ status: completed
 
 ## Context
 
-`parse_delay_seconds` accepts fixture dictionaries and live TomTom response
-text. Malformed response text should fail with a stable parser error before the
-code attempts to read `route.summary.totalDelaySeconds`.
+At the time of this change, `parse_delay_seconds` accepted fixture dictionaries
+and live TomTom response text using the then-current
+`route.summary.totalDelaySeconds` field. Malformed response text needed to fail
+with a stable parser error before field access. The provider contract was later
+superseded by `docs/plans/2026-06-21-tomtom-calculate-route.md`.
 
 ## Completed Scope
 
