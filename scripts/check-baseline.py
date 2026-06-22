@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Static baseline checks for the morning dashboard."""
 
+import hashlib
 from pathlib import Path
 import re
 import sys
@@ -75,8 +76,19 @@ REQUIRED = [
 FORBIDDEN = [
     re.compile(r"urllib2"),
     re.compile(r"app\.debug\s*=\s*True"),
-    re.compile(r"1e2099c7-eea9-476b-aac9-b20dc7100af1"),
 ]
+LEGACY_TOMTOM_KEY_LENGTH = 36
+LEGACY_TOMTOM_KEY_SHA256 = bytes.fromhex(
+    "bc8c6eabf52de3526346537460fff38cb319c566c73e68f021d14b699cad07d2"
+)
+
+
+def contains_legacy_tomtom_key(text: str) -> bool:
+    for offset in range(len(text) - LEGACY_TOMTOM_KEY_LENGTH + 1):
+        candidate = text[offset : offset + LEGACY_TOMTOM_KEY_LENGTH]
+        if hashlib.sha256(candidate.encode("utf-8")).digest() == LEGACY_TOMTOM_KEY_SHA256:
+            return True
+    return False
 
 
 def markdown_section(text: str, heading: str) -> str:
@@ -103,6 +115,8 @@ def main() -> int:
         for pattern in FORBIDDEN:
             if pattern.search(text):
                 failures.append(f"forbidden legacy pattern {pattern.pattern} found in {path.relative_to(ROOT)}")
+        if contains_legacy_tomtom_key(text):
+            failures.append(f"forbidden legacy TomTom credential found in {path.relative_to(ROOT)}")
 
     settings_example = (ROOT / "settings.py.example").read_text(encoding="utf-8", errors="replace")
     if re.search(r'(home_pos|work_pos)\s*=\s*"[0-9.-]+,[0-9.-]+"', settings_example):

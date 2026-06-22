@@ -4,6 +4,8 @@
 
 - Migrated the TomTom Calculate Route contract from the obsolete route service
   to `api.tomtom.com` and the `routes[0].summary.trafficDelayInSeconds` field.
+- Removed the retired TomTom key from the current checker while preserving
+  digest-based reintroduction detection.
 - Added offline rejection coverage for the legacy response shape and missing or
   malformed routes, summaries, and delay fields.
 - Clarified that the repository name is historical, no deployment configuration
