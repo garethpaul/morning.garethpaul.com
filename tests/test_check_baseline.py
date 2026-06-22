@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import runpy
 import shutil
 import subprocess
 import tempfile
@@ -8,7 +9,11 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 MAKEFILE = ROOT / "Makefile"
+BASELINE_CHECKER = ROOT / "scripts" / "check-baseline.py"
 TARGETS = ("check", "lint", "static-check", "test", "build", "compile", "verify", "clean")
+LEGACY_TOMTOM_KEY = "".join(
+    ("1e2099c7", "-eea9-", "476b-", "aac9-", "b20dc7100af1")
+)
 
 
 class MakefileRootTests(unittest.TestCase):
@@ -67,6 +72,17 @@ class MakefileRootTests(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("MAKEFILE_LIST must not be overridden", result.stderr)
+
+
+class BaselineCredentialTests(unittest.TestCase):
+    def test_legacy_tomtom_key_detection_does_not_store_plaintext(self):
+        checker_source = BASELINE_CHECKER.read_text(encoding="utf-8")
+        self.assertNotIn(LEGACY_TOMTOM_KEY, checker_source)
+
+        checker = runpy.run_path(str(BASELINE_CHECKER))
+        contains_legacy_key = checker["contains_legacy_tomtom_key"]
+        self.assertTrue(contains_legacy_key(f"prefix {LEGACY_TOMTOM_KEY} suffix"))
+        self.assertFalse(contains_legacy_key("prefix local-test-key suffix"))
 
 
 if __name__ == "__main__":

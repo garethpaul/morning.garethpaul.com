@@ -2,6 +2,14 @@
 
 ## 2026-06-21
 
+- Migrated the TomTom Calculate Route contract from the obsolete route service
+  to `api.tomtom.com` and the `routes[0].summary.trafficDelayInSeconds` field.
+- Removed the retired TomTom key from the current checker while preserving
+  digest-based reintroduction detection.
+- Added offline rejection coverage for the legacy response shape and missing or
+  malformed routes, summaries, and delay fields.
+- Clarified that the repository name is historical, no deployment configuration
+  is included, and live use requires local coordinates plus `TOMTOM_API_KEY`.
 - Preserved the complete checkout root for absolute Makefile paths containing
   spaces, brackets, or apostrophes, and rejected `MAKEFILE_LIST` overrides.
 - Added offline regression coverage for all eight Make aliases and command-line

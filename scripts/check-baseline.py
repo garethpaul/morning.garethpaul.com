@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Static baseline checks for the morning dashboard."""
 
+import hashlib
 from pathlib import Path
 import re
 import sys
@@ -67,6 +68,7 @@ REQUIRED = [
     "docs/plans/2026-06-16-settings-import-error-preservation.md",
     "docs/plans/2026-06-17-coordinate-whitespace-normalization.md",
     "docs/plans/2026-06-21-spaced-makefile-path.md",
+    "docs/plans/2026-06-21-tomtom-calculate-route.md",
     "tests/test_check_baseline.py",
     "tests/test_app.py",
     "tests/test_tomtom.py",
@@ -74,8 +76,19 @@ REQUIRED = [
 FORBIDDEN = [
     re.compile(r"urllib2"),
     re.compile(r"app\.debug\s*=\s*True"),
-    re.compile(r"1e2099c7-eea9-476b-aac9-b20dc7100af1"),
 ]
+LEGACY_TOMTOM_KEY_LENGTH = 36
+LEGACY_TOMTOM_KEY_SHA256 = bytes.fromhex(
+    "bc8c6eabf52de3526346537460fff38cb319c566c73e68f021d14b699cad07d2"
+)
+
+
+def contains_legacy_tomtom_key(text: str) -> bool:
+    for offset in range(len(text) - LEGACY_TOMTOM_KEY_LENGTH + 1):
+        candidate = text[offset : offset + LEGACY_TOMTOM_KEY_LENGTH]
+        if hashlib.sha256(candidate.encode("utf-8")).digest() == LEGACY_TOMTOM_KEY_SHA256:
+            return True
+    return False
 
 
 def markdown_section(text: str, heading: str) -> str:
@@ -102,6 +115,8 @@ def main() -> int:
         for pattern in FORBIDDEN:
             if pattern.search(text):
                 failures.append(f"forbidden legacy pattern {pattern.pattern} found in {path.relative_to(ROOT)}")
+        if contains_legacy_tomtom_key(text):
+            failures.append(f"forbidden legacy TomTom credential found in {path.relative_to(ROOT)}")
 
     settings_example = (ROOT / "settings.py.example").read_text(encoding="utf-8", errors="replace")
     if re.search(r'(home_pos|work_pos)\s*=\s*"[0-9.-]+,[0-9.-]+"', settings_example):
@@ -145,6 +160,7 @@ def main() -> int:
     settings_import_plan = (ROOT / "docs/plans/2026-06-16-settings-import-error-preservation.md").read_text(encoding="utf-8", errors="replace")
     coordinate_normalization_plan = (ROOT / "docs/plans/2026-06-17-coordinate-whitespace-normalization.md").read_text(encoding="utf-8", errors="replace")
     spaced_makefile_plan = (ROOT / "docs/plans/2026-06-21-spaced-makefile-path.md").read_text(encoding="utf-8", errors="replace")
+    calculate_route_plan = (ROOT / "docs/plans/2026-06-21-tomtom-calculate-route.md").read_text(encoding="utf-8", errors="replace")
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
@@ -434,6 +450,33 @@ Werkzeug==3.1.8
         failures.append("CHANGES must record TomTom JSON response validation")
     if "status: completed" not in tomtom_json_plan:
         failures.append("TomTom JSON response validation plan must be marked completed")
+    if not all(value in tomtom_source for value in [
+        "https://api.tomtom.com/routing/1/calculateRoute/",
+        "?key={api_key}&traffic=true&routeType=fastest",
+        'payload["routes"][0]["summary"]["trafficDelayInSeconds"]',
+    ]) or any(value in tomtom_source for value in [
+        "routes.tomtom.com",
+        "totalDelaySeconds",
+    ]):
+        failures.append("TomTom routing must use the current Calculate Route request and response contract")
+    if not all(value in test_tomtom for value in [
+        "test_route_url_uses_current_calculate_route_contract",
+        "test_parse_delay_seconds_rejects_missing_or_malformed_route_data",
+        "https://api.tomtom.com/routing/1/calculateRoute/1,2:3,4/json",
+        '"route": {"summary": {"totalDelaySeconds": 42}}',
+        "self.assertNotIn(\"Referer\", calls[0][1])",
+    ]):
+        failures.append("tests must cover the current TomTom contract and reject legacy or malformed responses")
+    if not all("TomTom Calculate Route contract" in text for text in [readme, vision, security, changes]):
+        failures.append("docs must describe the current TomTom Calculate Route contract")
+    if not all(value in readme for value in [
+        "historical project name",
+        "No deployment configuration is included",
+        "TOMTOM_API_KEY",
+    ]):
+        failures.append("README must document deployment status and required TomTom configuration")
+    if "status: completed" not in calculate_route_plan:
+        failures.append("TomTom Calculate Route plan must be marked completed")
     if "isinstance(value, bool)" not in tomtom_source or "if delay < 0" not in tomtom_source or "normalized.isascii()" not in tomtom_source:
         failures.append("TomTom delay parsing must accept only non-negative integers or ASCII digit strings")
     if "test_parse_delay_seconds_rejects_invalid_delay_values" not in test_tomtom or "True, False, -1, 1.5" not in test_tomtom:
