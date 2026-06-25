@@ -107,6 +107,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   decoder handler so provider response bodies are not retained in exceptions.
 - TomTom invalid encoding redaction maps invalid UTF-8 response bytes to the
   same stable parser error without retaining the body in exception context.
+- TomTom integer conversion redaction maps oversized JSON integers and digit
+  strings to stable validation errors without retaining Python conversion
+  exceptions.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -129,6 +132,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   offline tests.
 - TomTom delay value validation accepts only non-negative integers or ASCII
   digit strings before rendering route delays.
+- TomTom integer conversion redaction keeps oversized provider integers on the
+  same context-free validation boundaries as other malformed response values.
 - The bounded TomTom response rejects more than 1 MiB before JSON parsing;
   lower HTTP layers may still buffer transport data.
 - Positive numeric commute settings are required for work miles, miles per gallon, and cost per gallon.

@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-25
+
+- Added TomTom integer conversion redaction so oversized JSON integers and
+  digit strings use stable validation errors without retained Python exceptions.
+
 ## 2026-06-21
 
 - Migrated the TomTom Calculate Route contract from the obsolete route service

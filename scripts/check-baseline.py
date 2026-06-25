@@ -69,6 +69,7 @@ REQUIRED = [
     "docs/plans/2026-06-17-coordinate-whitespace-normalization.md",
     "docs/plans/2026-06-21-spaced-makefile-path.md",
     "docs/plans/2026-06-21-tomtom-calculate-route.md",
+    "docs/plans/2026-06-25-tomtom-integer-conversion-redaction.md",
     "tests/test_check_baseline.py",
     "tests/test_app.py",
     "tests/test_tomtom.py",
@@ -161,6 +162,7 @@ def main() -> int:
     coordinate_normalization_plan = (ROOT / "docs/plans/2026-06-17-coordinate-whitespace-normalization.md").read_text(encoding="utf-8", errors="replace")
     spaced_makefile_plan = (ROOT / "docs/plans/2026-06-21-spaced-makefile-path.md").read_text(encoding="utf-8", errors="replace")
     calculate_route_plan = (ROOT / "docs/plans/2026-06-21-tomtom-calculate-route.md").read_text(encoding="utf-8", errors="replace")
+    integer_conversion_plan = (ROOT / "docs/plans/2026-06-25-tomtom-integer-conversion-redaction.md").read_text(encoding="utf-8", errors="replace")
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
@@ -440,7 +442,7 @@ Werkzeug==3.1.8
         failures.append("CHANGES must record repository-relative Flask assets")
     if "status: completed" not in flask_assets_plan:
         failures.append("repository-relative Flask assets plan must be marked completed")
-    if "json.JSONDecodeError" not in tomtom_source or "TomTom response must be valid JSON" not in tomtom_source:
+    if "except ValueError:" not in tomtom_source or "TomTom response must be valid JSON" not in tomtom_source:
         failures.append("TomTom response parsing must reject malformed JSON with a stable error")
     if "test_parse_delay_seconds_rejects_invalid_json" not in test_tomtom:
         failures.append("tests must cover TomTom JSON response validation")
@@ -558,7 +560,7 @@ Werkzeug==3.1.8
         failures.append("TomTom transport error redaction plan must record completed verification")
     if not all(value in tomtom_source for value in [
         "invalid_json = False",
-        "except (json.JSONDecodeError, UnicodeDecodeError):",
+        "except ValueError:",
         "invalid_json = True",
         "if invalid_json:",
         'raise ValueError("TomTom response must be valid JSON")',
@@ -594,6 +596,25 @@ Werkzeug==3.1.8
         "git diff --check",
     ]) or re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", markdown_section(invalid_encoding_plan, "Verification Completed")):
         failures.append("TomTom invalid encoding plan must record completed verification")
+    if not all(value in tomtom_source for value in [
+        "invalid_delay = False",
+        "except ValueError:",
+        "invalid_delay = True",
+        "if invalid_delay:",
+    ]):
+        failures.append("TomTom integer conversions must use deferred redacted error boundaries")
+    if not all(value in test_tomtom for value in [
+        "test_parse_delay_seconds_redacts_oversized_json_integer_error",
+        "test_parse_delay_seconds_redacts_oversized_digit_string_error",
+        '"9" * 5000',
+        "self.assertIsNone(raised.exception.__cause__)",
+        "self.assertIsNone(raised.exception.__context__)",
+    ]):
+        failures.append("tests must cover context-free oversized TomTom integer failures")
+    if not all("TomTom integer conversion redaction" in text for text in [readme, vision, security, changes]):
+        failures.append("docs must describe TomTom integer conversion redaction")
+    if "status: completed" not in integer_conversion_plan or "make check" not in integer_conversion_plan:
+        failures.append("TomTom integer conversion redaction plan must record completed verification")
 
     if failures:
         for failure in failures:

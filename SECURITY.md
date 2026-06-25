@@ -61,6 +61,8 @@ Helpful reports include:
   without retaining the provider body in a decoder exception.
 - TomTom invalid encoding redaction should map invalid UTF-8 provider bytes to
   the same body-free parser error.
+- TomTom integer conversion redaction should map oversized JSON integers and
+  ASCII digit strings to stable errors without retaining conversion exceptions.
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
 - Finite positive commute settings should reject `NaN` and infinity during
   loading and direct cost calculation before output reaches the dashboard.

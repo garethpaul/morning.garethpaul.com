@@ -80,7 +80,7 @@ def parse_delay_seconds(payload) -> int:
         invalid_json = False
         try:
             payload = json.loads(payload)
-        except (json.JSONDecodeError, UnicodeDecodeError):
+        except ValueError:
             invalid_json = True
         if invalid_json:
             raise ValueError("TomTom response must be valid JSON")
@@ -102,10 +102,13 @@ def parse_delay_seconds(payload) -> int:
         normalized = value.strip()
         if not normalized.isascii() or not normalized.isdigit():
             raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
+        invalid_delay = False
         try:
             delay = int(normalized)
-        except ValueError as error:
-            raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer") from error
+        except ValueError:
+            invalid_delay = True
+        if invalid_delay:
+            raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
     else:
         raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
 

@@ -99,6 +99,37 @@ class TomTomTests(unittest.TestCase):
         self.assertIsNone(raised.exception.__context__)
         self.assertNotIn(secret, str(raised.exception))
 
+    def test_parse_delay_seconds_redacts_oversized_json_integer_error(self):
+        payload = (
+            '{"routes":[{"summary":{"trafficDelayInSeconds":'
+            + ("9" * 5000)
+            + "}}]}"
+        )
+
+        with self.assertRaisesRegex(
+            ValueError, "^TomTom response must be valid JSON$"
+        ) as raised:
+            parse_delay_seconds(payload)
+
+        self.assertIsNone(raised.exception.__cause__)
+        self.assertIsNone(raised.exception.__context__)
+
+    def test_parse_delay_seconds_redacts_oversized_digit_string_error(self):
+        payload = {
+            "routes": [
+                {"summary": {"trafficDelayInSeconds": "9" * 5000}}
+            ]
+        }
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "^TomTom trafficDelayInSeconds must be a non-negative integer$",
+        ) as raised:
+            parse_delay_seconds(payload)
+
+        self.assertIsNone(raised.exception.__cause__)
+        self.assertIsNone(raised.exception.__context__)
+
     def test_parse_delay_seconds_accepts_non_negative_integers(self):
         for delay in (0, 42, " 42 "):
             with self.subTest(delay=delay):
