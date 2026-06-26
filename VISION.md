@@ -35,6 +35,8 @@ TomTom invalid encoding redaction keeps raw invalid UTF-8 provider bytes out of
 that same exception chain.
 TomTom integer conversion redaction keeps oversized JSON integers and digit
 strings on stable, context-free parser validation paths.
+TomTom JSON nesting normalization keeps decoder recursion limits on the stable
+malformed-JSON validation path.
 TomTom degraded dashboard handling keeps stable provider transport and parser
 failures on a redacted unavailable state while local cost/news content remains
 usable and unexpected programming errors remain visible.

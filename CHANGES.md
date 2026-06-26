@@ -1,5 +1,67 @@
 # Changes
 
+## 2026-06-26 12:20 - P1 - Normalize excessive TomTom JSON nesting
+
+### Summary
+
+Mapped Python's JSON decoder recursion limit to the dashboard's stable,
+body-free malformed-response contract for bounded but excessively nested
+TomTom payloads.
+
+### Work completed
+
+- Added a Python 3.12 regression using a 20,001-byte, 10,000-level JSON array.
+- Normalized `RecursionError` beside decoder `ValueError` without broadening
+  route, schema, delay, transport, or dashboard exception handling.
+- Extended the static baseline, maintained documentation, and implementation
+  record so the decoder boundary remains mutation-sensitive.
+
+### Threads
+
+- Started: TomTom JSON nesting normalization — direct implementation.
+- Continued: continuous open-source maintenance loop.
+- Stopped: none.
+
+### Files changed
+
+- `stuff/tomtom.py` — stable decoder recursion normalization.
+- `tests/test_tomtom.py` — excessive-nesting redaction regression.
+- `scripts/check-baseline.py` — source, test, documentation, and plan contracts.
+- `README.md`, `SECURITY.md`, `VISION.md` — parser boundary guidance.
+- `docs/plans/2026-06-26-tomtom-json-nesting-normalization.md` — completed plan.
+- `CHANGES.md` — this cycle record.
+
+### Validation
+
+- Red Python 3.12 test — previously raised raw `RecursionError` from
+  `json.loads`; now raises the stable context-free `ValueError`.
+- Reviewed Python 3.12 `make check` — baseline, 37 offline tests, and source
+  compilation passed.
+- `pip check` — all 12 reviewed packages are compatible.
+- Two isolated hostile mutations — removing the recursion catch or reducing
+  the regression below the decoder limit both failed closed.
+- `git diff --check` — passed.
+- Hosted baseline runs `28259927059` and `28259924403` passed.
+- CodeQL run `28259925258` passed actions and Python analysis; the aggregate
+  CodeQL check also passed.
+- `codex review --base origin/master` was attempted on exact head `9fbfeb3` but
+  OpenAI authentication returned HTTP 401 before analysis; immutable manual
+  diff review found no accepted or actionable findings.
+
+### Bugs / findings
+
+- P1: A response well below the 1 MiB bound could exceed the JSON decoder's
+  nesting limit and escape the public parser's stable malformed-response type.
+
+### Blockers
+
+- None. The regression is offline and requires no TomTom key or live request.
+
+### Next action
+
+- Run the reviewed Python 3.12 gate, prove the new source/test contracts reject
+  hostile mutations, and require exact-head hosted checks before merge.
+
 ## 2026-06-25 23:48 - P1 - Keep the dashboard usable during TomTom failures
 
 ### Summary

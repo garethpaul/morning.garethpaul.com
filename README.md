@@ -110,6 +110,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - TomTom integer conversion redaction maps oversized JSON integers and digit
   strings to stable validation errors without retaining Python conversion
   exceptions.
+- TomTom JSON nesting normalization maps decoder recursion limits to the same
+  stable malformed-JSON error instead of exposing a runtime-specific exception.
 - TomTom degraded dashboard handling converts only the stable transport and
   parser failure surface into a redacted unavailable message while preserving
   local fuel-cost and news content; unexpected programming errors still fail.

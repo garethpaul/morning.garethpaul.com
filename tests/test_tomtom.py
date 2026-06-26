@@ -114,6 +114,18 @@ class TomTomTests(unittest.TestCase):
         self.assertIsNone(raised.exception.__cause__)
         self.assertIsNone(raised.exception.__context__)
 
+    def test_parse_delay_seconds_redacts_excessive_json_nesting(self):
+        payload = "[" * 10000 + "0" + "]" * 10000
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "^TomTom response must be valid JSON$",
+        ) as raised:
+            parse_delay_seconds(payload)
+
+        self.assertIsNone(raised.exception.__cause__)
+        self.assertIsNone(raised.exception.__context__)
+
     def test_parse_delay_seconds_redacts_oversized_digit_string_error(self):
         payload = {
             "routes": [
