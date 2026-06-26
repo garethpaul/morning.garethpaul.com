@@ -66,6 +66,8 @@ Helpful reports include:
   the same body-free parser error.
 - TomTom integer conversion redaction should map oversized JSON integers and
   ASCII digit strings to stable errors without retaining conversion exceptions.
+- TomTom JSON nesting normalization should map decoder recursion limits to the
+  body-free malformed-JSON error before they leave the provider parser.
 - Positive numeric commute settings should be enforced for distance, fuel economy, and fuel cost before rendering commute-cost output.
 - Finite positive commute settings should reject `NaN` and infinity during
   loading and direct cost calculation before output reaches the dashboard.

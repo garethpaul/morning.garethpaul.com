@@ -71,6 +71,7 @@ REQUIRED = [
     "docs/plans/2026-06-21-tomtom-calculate-route.md",
     "docs/plans/2026-06-25-tomtom-integer-conversion-redaction.md",
     "docs/plans/2026-06-25-tomtom-degraded-dashboard.md",
+    "docs/plans/2026-06-26-tomtom-json-nesting-normalization.md",
     "tests/test_check_baseline.py",
     "tests/test_app.py",
     "tests/test_tomtom.py",
@@ -444,16 +445,23 @@ Werkzeug==3.1.8
         failures.append("CHANGES must record repository-relative Flask assets")
     if "status: completed" not in flask_assets_plan:
         failures.append("repository-relative Flask assets plan must be marked completed")
-    if "except ValueError:" not in tomtom_source or "TomTom response must be valid JSON" not in tomtom_source:
+    if "except (ValueError, RecursionError):" not in tomtom_source or "TomTom response must be valid JSON" not in tomtom_source:
         failures.append("TomTom response parsing must reject malformed JSON with a stable error")
     if "test_parse_delay_seconds_rejects_invalid_json" not in test_tomtom:
         failures.append("tests must cover TomTom JSON response validation")
+    if "test_parse_delay_seconds_redacts_excessive_json_nesting" not in test_tomtom:
+        failures.append("tests must normalize excessive TomTom JSON nesting")
     if not all("tomtom json response validation" in text.lower() for text in [readme, vision, security]):
         failures.append("docs must mention TomTom JSON response validation")
     if "tomtom json response validation" not in changes.lower():
         failures.append("CHANGES must record TomTom JSON response validation")
     if "status: completed" not in tomtom_json_plan:
         failures.append("TomTom JSON response validation plan must be marked completed")
+    nesting_plan = (ROOT / "docs/plans/2026-06-26-tomtom-json-nesting-normalization.md").read_text(encoding="utf-8", errors="replace")
+    if not all("TomTom JSON nesting normalization" in text for text in [readme, vision, security, changes]):
+        failures.append("docs must describe TomTom JSON nesting normalization")
+    if "status: completed" not in nesting_plan or "mutation" not in nesting_plan:
+        failures.append("TomTom JSON nesting plan must preserve completed mutation evidence")
     if not all(value in tomtom_source for value in [
         "https://api.tomtom.com/routing/1/calculateRoute/",
         "?key={api_key}&traffic=true&routeType=fastest",
