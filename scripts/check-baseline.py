@@ -70,6 +70,7 @@ REQUIRED = [
     "docs/plans/2026-06-21-spaced-makefile-path.md",
     "docs/plans/2026-06-21-tomtom-calculate-route.md",
     "docs/plans/2026-06-25-tomtom-integer-conversion-redaction.md",
+    "docs/plans/2026-06-25-tomtom-degraded-dashboard.md",
     "tests/test_check_baseline.py",
     "tests/test_app.py",
     "tests/test_tomtom.py",
@@ -163,6 +164,7 @@ def main() -> int:
     spaced_makefile_plan = (ROOT / "docs/plans/2026-06-21-spaced-makefile-path.md").read_text(encoding="utf-8", errors="replace")
     calculate_route_plan = (ROOT / "docs/plans/2026-06-21-tomtom-calculate-route.md").read_text(encoding="utf-8", errors="replace")
     integer_conversion_plan = (ROOT / "docs/plans/2026-06-25-tomtom-integer-conversion-redaction.md").read_text(encoding="utf-8", errors="replace")
+    degraded_dashboard_plan = (ROOT / "docs/plans/2026-06-25-tomtom-degraded-dashboard.md").read_text(encoding="utf-8", errors="replace")
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
@@ -615,6 +617,32 @@ Werkzeug==3.1.8
         failures.append("docs must describe TomTom integer conversion redaction")
     if "status: completed" not in integer_conversion_plan or "make check" not in integer_conversion_plan:
         failures.append("TomTom integer conversion redaction plan must record completed verification")
+    if not all(value in app_source for value in [
+        "def _traffic_delay_display(",
+        "except (RuntimeError, ValueError):",
+        "return None, False",
+        "traffic_available=traffic_available",
+    ]):
+        failures.append("dashboard routes must degrade only the stable TomTom failure surface")
+    if not all(value in template for value in [
+        "{% if traffic_available %}",
+        "Travel time delay is temporarily unavailable",
+    ]):
+        failures.append("dashboard template must render an explicit unavailable traffic state")
+    if not all(value in test_app for value in [
+        "test_create_app_keeps_dashboard_available_for_tomtom_failures",
+        "test_create_app_does_not_hide_unexpected_traffic_client_errors",
+        "RuntimeError",
+        "ValueError",
+        "TypeError",
+        'for path in ("/", "/home")',
+        "self.assertNotIn(secret.encode(), response.data)",
+    ]):
+        failures.append("tests must cover redacted degraded routes without hiding programming errors")
+    if not all("TomTom degraded dashboard" in text for text in [readme, vision, security, changes]):
+        failures.append("docs must describe the TomTom degraded dashboard boundary")
+    if "status: completed" not in degraded_dashboard_plan or "make check" not in degraded_dashboard_plan:
+        failures.append("TomTom degraded dashboard plan must record completed verification")
 
     if failures:
         for failure in failures:

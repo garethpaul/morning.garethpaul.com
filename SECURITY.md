@@ -57,6 +57,9 @@ Helpful reports include:
 - TomTom transport error redaction should replace Requests transport, HTTP
   status, and response cleanup exceptions before API-key-bearing route URLs can
   reach logs.
+- TomTom degraded dashboard handling should catch only stable `RuntimeError`
+  and `ValueError` provider failures, render no exception detail, and leave
+  unexpected programming errors visible.
 - TomTom parser error redaction should raise malformed-JSON validation failures
   without retaining the provider body in a decoder exception.
 - TomTom invalid encoding redaction should map invalid UTF-8 provider bytes to

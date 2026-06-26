@@ -267,6 +267,37 @@ class AppTests(unittest.TestCase):
         self.assertIn(b"123", work.data)
         self.assertEqual([call[0] for call in calls], ["work", "home"])
 
+    def test_create_app_keeps_dashboard_available_for_tomtom_failures(self):
+        secret = "private-provider-detail"
+
+        for failure in (
+            RuntimeError(f"TomTom request failed: {secret}"),
+            ValueError(f"TomTom response invalid: {secret}"),
+        ):
+            with self.subTest(failure=type(failure).__name__):
+                def fail_traffic(where, config):
+                    raise failure
+
+                app = create_app(self.settings(), traffic_client=fail_traffic)
+                with app.test_client() as client:
+                    for path in ("/", "/home"):
+                        response = client.get(path)
+                        self.assertEqual(response.status_code, 200)
+                        self.assertIn(b"Travel time delay is temporarily unavailable", response.data)
+                        self.assertIn(b"You saved $4.0 today", response.data)
+                        self.assertNotIn(secret.encode(), response.data)
+
+    def test_create_app_does_not_hide_unexpected_traffic_client_errors(self):
+        def fail_traffic(where, config):
+            raise TypeError("traffic client contract bug")
+
+        app = create_app(self.settings(), traffic_client=fail_traffic)
+        app.testing = True
+
+        with app.test_client() as client:
+            with self.assertRaisesRegex(TypeError, "traffic client contract bug"):
+                client.get("/")
+
     def test_create_app_serves_static_assets_when_cwd_changes(self):
         current_directory = os.getcwd()
         try:
