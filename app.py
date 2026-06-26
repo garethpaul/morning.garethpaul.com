@@ -57,25 +57,32 @@ def create_app(
     )
     config = settings or load_settings()
 
-    @app.route("/")
-    def work():
+    def render_dashboard(where: str):
+        data, traffic_available = _traffic_delay_display(traffic_client, where, config)
         return render_template(
             "index.html",
-            data=str(traffic_client("work", config)),
+            data=data,
+            traffic_available=traffic_available,
             transport=config.cost_per_day,
             news=config.news,
         )
+
+    @app.route("/")
+    def work():
+        return render_dashboard("work")
 
     @app.route("/home")
     def home():
-        return render_template(
-            "index.html",
-            data=str(traffic_client("home", config)),
-            transport=config.cost_per_day,
-            news=config.news,
-        )
+        return render_dashboard("home")
 
     return app
+
+
+def _traffic_delay_display(traffic_client, where: str, settings: MorningSettings):
+    try:
+        return str(traffic_client(where, settings)), True
+    except (RuntimeError, ValueError):
+        return None, False
 
 
 def load_settings(env: Mapping[str, str] = os.environ, settings_module: Optional[object] = None) -> MorningSettings:

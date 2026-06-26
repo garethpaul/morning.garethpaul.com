@@ -110,6 +110,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - TomTom integer conversion redaction maps oversized JSON integers and digit
   strings to stable validation errors without retaining Python conversion
   exceptions.
+- TomTom degraded dashboard handling converts only the stable transport and
+  parser failure surface into a redacted unavailable message while preserving
+  local fuel-cost and news content; unexpected programming errors still fail.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -150,6 +153,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   containing API-key-bearing URLs do not reach application logs.
 - Keep TomTom parser error redaction in place so malformed provider bodies do
   not remain reachable through chained decoder exceptions.
+- Keep TomTom degraded dashboard handling narrow to `RuntimeError` and
+  `ValueError` so provider outages do not expose details or hide code defects.
 - Keep TomTom API key placeholder validation in place so copied templates fail before live route requests.
 - Keep TomTom JSON response validation in place so malformed route responses
   fail before delay parsing.
@@ -173,6 +178,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   changes.
 - Use an absolute Makefile path when running those gates outside the checkout.
 - See `docs/plans/2026-06-08-morning-dashboard-baseline.md` for the current completed baseline plan.
+- See `docs/plans/2026-06-25-tomtom-degraded-dashboard.md` for the redacted
+  provider-outage fallback.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local gate alias
   baseline.
 - See `docs/plans/2026-06-09-check-target-gate-order.md` for the check target

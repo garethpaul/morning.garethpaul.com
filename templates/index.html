@@ -9,7 +9,11 @@
 	</div>
 	<div class="container">
 	<h2>Travel</h2>
+	{% if traffic_available %}
 	<p>Travel time delay = {{ data }}</p>
+	{% else %}
+	<p>Travel time delay is temporarily unavailable</p>
+	{% endif %}
 	<p class="mini">This is based on TomTom route planner data.</p>
 	<button class="bus">Bus</button>
 	<button class="car">Car</button>

@@ -35,6 +35,9 @@ TomTom invalid encoding redaction keeps raw invalid UTF-8 provider bytes out of
 that same exception chain.
 TomTom integer conversion redaction keeps oversized JSON integers and digit
 strings on stable, context-free parser validation paths.
+TomTom degraded dashboard handling keeps stable provider transport and parser
+failures on a redacted unavailable state while local cost/news content remains
+usable and unexpected programming errors remain visible.
 Reviewed Python 3.12 dependency constraints keep hosted resolution stable while
 using the patched Flask 3.1 line and preserving the requests 2.x compatibility
 range. They do not authenticate downloaded artifacts with hashes.
@@ -59,6 +62,7 @@ Priority:
 - Keep TomTom transport error redaction before request or cleanup failures reach logs
 - Keep TomTom parser error redaction around malformed JSON validation
 - Keep TomTom integer conversion redaction around oversized provider numbers
+- Keep TomTom degraded dashboard handling narrow to stable provider failures
 - Keep positive numeric commute settings for distance, MPG, and fuel cost
 - Keep finite positive commute settings across loading and direct cost calculation
 - Keep settings import error preservation for failures inside local configuration
@@ -73,9 +77,6 @@ Priority:
 Next priorities:
 
 - Add weather or news inputs behind the same fixture-first testing approach
-- Keep pinned, read-only Python 3.12 hosted validation covering dependency
-  installation through the reviewed constraints graph, `pip check`, and
-  offline route tests without TomTom access
 - Document deployment environment variables for any hosted deployment
 
 Contribution rules:

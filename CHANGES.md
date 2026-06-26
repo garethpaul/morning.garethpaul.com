@@ -1,5 +1,65 @@
 # Changes
 
+## 2026-06-25 23:48 - P1 - Keep the dashboard usable during TomTom failures
+
+### Summary
+
+Converted the documented TomTom transport and parser failure surface into a
+redacted traffic-unavailable state instead of replacing the whole dashboard
+with a Flask 500 page.
+
+### Work completed
+
+- Added one shared route helper that catches only `RuntimeError` and `ValueError`.
+- Preserved successful delay rendering, work/home routing, fuel-cost content,
+  news content, and unexpected programming-error visibility.
+- Added an explicit traffic-unavailable template state without rendering or
+  logging provider exception details.
+- Added a mutation-sensitive static contract and completed implementation plan.
+
+### Threads
+
+- Started: TomTom degraded dashboard — direct implementation.
+- Continued: continuous open-source maintenance loop.
+- Stopped: none.
+
+### Files changed
+
+- `app.py` — narrow provider-failure display helper shared by both routes.
+- `templates/index.html` — explicit available/unavailable traffic states.
+- `tests/test_app.py` — work/home outage, redaction, local-content, and
+  unexpected-error regressions.
+- `scripts/check-baseline.py` — durable degraded-dashboard contract.
+- `README.md`, `SECURITY.md`, `VISION.md` — operational and security boundary.
+- `docs/plans/2026-06-25-tomtom-degraded-dashboard.md` — completed plan.
+- `CHANGES.md` — this cycle record.
+
+### Validation
+
+- Red Python 3.12 tests — `RuntimeError` and `ValueError` each returned 500
+  before the helper was added; unexpected `TypeError` already propagated.
+- Reviewed constraints environment — 36 offline tests passed.
+- `/usr/bin/make check` — baseline, 36 tests, and source compilation passed.
+- `uv pip check` — all 12 reviewed packages are compatible.
+- Six isolated hostile mutations — all rejected across catch width, work/home
+  coverage, unavailable copy, provider-detail retention, and unexpected-error tests.
+- `git diff --check` — passed.
+- Hosted and CodeQL gates pending.
+
+### Bugs / findings
+
+- P1: Stable provider transport, cleanup, response-bound, encoding, JSON,
+  schema, and delay errors made otherwise local dashboard content unavailable.
+
+### Blockers
+
+- None. No live TomTom key, coordinates, response, or request is required.
+
+### Next action
+
+- Run the full reviewed Python 3.12 gate and hostile mutations, then require
+  exact-head hosted checks and CodeQL before review and merge.
+
 ## 2026-06-25
 
 - Added TomTom integer conversion redaction so oversized JSON integers and
