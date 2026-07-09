@@ -38,7 +38,9 @@ clean:
 """
 REQUIRED = [
     ".gitignore",
+    ".github/CODEOWNERS",
     ".github/workflows/check.yml",
+    "AGENTS.md",
     "Makefile",
     "README.md",
     "SECURITY.md",
@@ -169,6 +171,8 @@ def main() -> int:
     constraints = (ROOT / "constraints.txt").read_text(encoding="utf-8", errors="replace")
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8", errors="replace")
     workflow = (ROOT / ".github/workflows/check.yml").read_text(encoding="utf-8", errors="replace")
+    codeowners = (ROOT / ".github/CODEOWNERS").read_text(encoding="utf-8", errors="replace")
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8", errors="replace")
     tomtom_source = (ROOT / "stuff" / "tomtom.py").read_text(encoding="utf-8", errors="replace")
 
     expected_requirements = """Flask>=3.1.3,<3.2
@@ -213,6 +217,22 @@ Werkzeug==3.1.8
         failures.append("Check workflow must stay pinned, read-only, bounded, and dependency-aware")
     if workflow.count("uses: actions/checkout@") != 1 or workflow.count("persist-credentials: false") != 1:
         failures.append("Check workflow must contain one credential-free checkout step")
+    workflow_files = sorted(
+        str(path.relative_to(ROOT))
+        for path in (ROOT / ".github/workflows").rglob("*")
+        if path.is_file()
+    )
+    if workflow_files != [".github/workflows/check.yml"]:
+        failures.append("check.yml must be the repository's only hosted workflow")
+    if codeowners.strip() != "* @garethpaul":
+        failures.append("CODEOWNERS must assign the repository to @garethpaul")
+    if not all(value in agents for value in [
+        "make check",
+        "constraints.txt",
+        "TOMTOM_API_KEY",
+        "settings.py.example",
+    ]):
+        failures.append("AGENTS.md must document make check, constraints, and secret-safe settings")
     if requirements != expected_requirements:
         failures.append("requirements.txt must preserve the reviewed direct compatibility ranges")
     if constraints != expected_constraints:
