@@ -14,7 +14,9 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 ## Repository Contents
 
 - `README.md` - project overview and local usage notes
+- `AGENTS.md` - contributor and coding-agent workflow guidance
 - `.gitignore` - local settings and Python artifact ignores
+- `.github/CODEOWNERS` - default ownership for review routing
 - `CHANGES.md` - recent maintenance changes
 - `Makefile` - local static verification entry point
 - `app.py` - Flask app factory and runtime settings loader

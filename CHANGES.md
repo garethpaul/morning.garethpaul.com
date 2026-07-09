@@ -1,5 +1,30 @@
 # Changes
 
+## 2026-07-09 - P2 - Add agent guidance and CODEOWNERS
+
+### Summary
+
+Added repository agent instructions and default CODEOWNERS so contributors and
+automation have a durable ownership and workflow surface on `master`.
+
+### Work completed
+
+- Added `AGENTS.md` with make gates, constraints install, and secret-safe settings notes.
+- Added `.github/CODEOWNERS` assigning the repository to `@garethpaul`.
+- Extended the static baseline to require both files and keep a single hosted workflow.
+
+### Files changed
+
+- `AGENTS.md` — contributor and coding-agent guidance.
+- `.github/CODEOWNERS` — default ownership.
+- `scripts/check-baseline.py` — required-file and content contracts.
+- `README.md` — repository contents listing.
+- `CHANGES.md` — this cycle record.
+
+### Validation
+
+- `make check` — baseline, offline tests, and compile.
+
 ## 2026-06-26 12:20 - P1 - Normalize excessive TomTom JSON nesting
 
 ### Summary
