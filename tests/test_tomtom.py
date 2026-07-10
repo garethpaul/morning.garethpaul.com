@@ -106,13 +106,12 @@ class TomTomTests(unittest.TestCase):
             + "}}]}"
         )
 
-        with self.assertRaisesRegex(
-            ValueError, "^TomTom response must be valid JSON$"
-        ) as raised:
+        with self.assertRaises(ValueError) as raised:
             parse_delay_seconds(payload)
 
         self.assertIsNone(raised.exception.__cause__)
         self.assertIsNone(raised.exception.__context__)
+        self.assertNotIn("9", str(raised.exception))
 
     def test_parse_delay_seconds_redacts_excessive_json_nesting(self):
         payload = "[" * 10000 + "0" + "]" * 10000

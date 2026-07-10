@@ -97,6 +97,10 @@ def parse_delay_seconds(payload) -> int:
     if isinstance(value, bool):
         raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
     if isinstance(value, int):
+        if value < 0:
+            raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
+        if value > 31536000:
+            raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
         delay = value
     elif isinstance(value, str):
         normalized = value.strip()
@@ -108,6 +112,8 @@ def parse_delay_seconds(payload) -> int:
         except ValueError:
             invalid_delay = True
         if invalid_delay:
+            raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
+        if delay > 31536000:
             raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
     else:
         raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
