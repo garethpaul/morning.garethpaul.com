@@ -4,7 +4,12 @@ import unittest
 
 import requests
 
-from stuff.tomtom import parse_delay_seconds, route_url, traffic_delay_seconds
+from stuff.tomtom import (
+    MAXIMUM_TOMTOM_DELAY_SECONDS,
+    parse_delay_seconds,
+    route_url,
+    traffic_delay_seconds,
+)
 
 
 class FakeResponse:
@@ -106,12 +111,13 @@ class TomTomTests(unittest.TestCase):
             + "}}]}"
         )
 
-        with self.assertRaises(ValueError) as raised:
+        with self.assertRaisesRegex(
+            ValueError, "^TomTom response must be valid JSON$"
+        ) as raised:
             parse_delay_seconds(payload)
 
         self.assertIsNone(raised.exception.__cause__)
         self.assertIsNone(raised.exception.__context__)
-        self.assertNotIn("9", str(raised.exception))
 
     def test_parse_delay_seconds_redacts_excessive_json_nesting(self):
         payload = "[" * 10000 + "0" + "]" * 10000
@@ -146,6 +152,31 @@ class TomTomTests(unittest.TestCase):
             with self.subTest(delay=delay):
                 payload = {"routes": [{"summary": {"trafficDelayInSeconds": delay}}]}
                 self.assertEqual(parse_delay_seconds(payload), int(delay))
+
+    def test_parse_delay_seconds_accepts_delay_at_maximum(self):
+        for delay in (
+            MAXIMUM_TOMTOM_DELAY_SECONDS,
+            str(MAXIMUM_TOMTOM_DELAY_SECONDS),
+            MAXIMUM_TOMTOM_DELAY_SECONDS - 1,
+        ):
+            with self.subTest(delay=delay):
+                payload = {"routes": [{"summary": {"trafficDelayInSeconds": delay}}]}
+                self.assertEqual(parse_delay_seconds(payload), int(delay))
+
+    def test_parse_delay_seconds_rejects_delay_above_maximum(self):
+        for delay in (
+            MAXIMUM_TOMTOM_DELAY_SECONDS + 1,
+            str(MAXIMUM_TOMTOM_DELAY_SECONDS + 1),
+            99999999999,
+            "99999999999",
+        ):
+            with self.subTest(delay=delay):
+                payload = {"routes": [{"summary": {"trafficDelayInSeconds": delay}}]}
+                with self.assertRaisesRegex(
+                    ValueError,
+                    r"^TomTom trafficDelayInSeconds must be a non-negative integer$",
+                ):
+                    parse_delay_seconds(payload)
 
     def test_parse_delay_seconds_rejects_invalid_delay_values(self):
         for delay in (True, False, -1, 1.5, None, [], {}, "-1", "1.5", ""):

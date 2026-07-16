@@ -19,6 +19,11 @@ USER_AGENT = (
 )
 MAXIMUM_TOMTOM_RESPONSE_BYTES = 1024 * 1024
 TOMTOM_RESPONSE_CHUNK_BYTES = 64 * 1024
+# TomTom publishes no upper bound for trafficDelayInSeconds. One year is a
+# sanity ceiling: any advisory delay at or beyond it is implausible for a
+# commute route and indicates a malformed or hostile response rather than
+# traffic. Values above it are rejected rather than rendered.
+MAXIMUM_TOMTOM_DELAY_SECONDS = 365 * 24 * 60 * 60
 
 
 def route_url(where: str, settings) -> str:
@@ -97,10 +102,6 @@ def parse_delay_seconds(payload) -> int:
     if isinstance(value, bool):
         raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
     if isinstance(value, int):
-        if value < 0:
-            raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
-        if value > 31536000:
-            raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
         delay = value
     elif isinstance(value, str):
         normalized = value.strip()
@@ -113,11 +114,11 @@ def parse_delay_seconds(payload) -> int:
             invalid_delay = True
         if invalid_delay:
             raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
-        if delay > 31536000:
-            raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
     else:
         raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
 
     if delay < 0:
+        raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
+    if delay > MAXIMUM_TOMTOM_DELAY_SECONDS:
         raise ValueError("TomTom trafficDelayInSeconds must be a non-negative integer")
     return delay

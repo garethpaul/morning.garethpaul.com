@@ -1,5 +1,41 @@
 # Changes
 
+## 2026-07-16 00:25 - P2 - Bound TomTom advisory delay to a sanity ceiling
+
+### Summary
+
+Rejected `trafficDelayInSeconds` above a documented one-year ceiling so a
+malformed or hostile response cannot render an implausible advisory delay. The
+ceiling is applied once after type dispatch through the existing stable
+delay-value error, so no provider data reaches the message.
+
+### Work completed
+
+- Added `MAXIMUM_TOMTOM_DELAY_SECONDS = 365 * 24 * 60 * 60` with a comment
+  recording that TomTom publishes no upper bound and this is a plausibility
+  ceiling, matching the existing named-constant convention.
+- Applied the ceiling once alongside the existing `delay < 0` check and removed
+  the duplicated per-branch checks.
+- Removed a redundant `value < 0` branch already covered by `delay < 0`.
+- Restored the strict `^TomTom response must be valid JSON$` assertion in the
+  oversized-JSON-integer redaction test; the relaxation was unnecessary because
+  the strict assertion passes against this branch's own parser.
+- Added at-ceiling and above-ceiling regressions for integer and string inputs.
+
+### Notes
+
+- The branch's original premise (an overflow `ValueError` for 5000-digit values)
+  did not reproduce: merged plan
+  `2026-06-25-tomtom-integer-conversion-redaction.md` already handles both
+  forms, and the base suite passes unmodified on the pinned Python 3.12.
+
+### Files changed
+
+- `stuff/tomtom.py` — named ceiling, single post-dispatch check, dead branch
+  removed.
+- `tests/test_tomtom.py` — boundary regressions; restored redaction assertion.
+- `docs/plans/2026-07-16-tomtom-delay-sanity-ceiling.md` — plan.
+
 ## 2026-06-26 12:20 - P1 - Normalize excessive TomTom JSON nesting
 
 ### Summary
